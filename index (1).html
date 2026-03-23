@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OmniBank AI — Live Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg0:#060d1a;--bg1:#0b1526;--bg2:#101e35;--bg3:#162440;--bg4:#1c2d4f;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --blue:#2d7aff;--blue2:#5594ff;--cyan:#00cfff;--green:#00e87a;
+  --orange:#ff7b2b;--red:#ff3d5a;--gold:#f5c530;
+  --text:#dce8ff;--text2:#7a96c2;--text3:#3d5270;
+  --sans:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+  --serif:'Fraunces',serif;--r:10px;--r2:7px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--bg0);color:var(--text);font-family:var(--sans);font-size:13px;overflow:hidden}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(45,122,255,0.06) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(0,207,255,0.04) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;position:relative;z-index:1}
+
+/* ── SIDEBAR ── */
+.sidebar{width:256px;min-width:256px;background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.logo{padding:18px 16px 14px;border-bottom:1px solid var(--border)}
+.logo-row{display:flex;align-items:center;gap:10px;margin-bottom:3px}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--blue),var(--cyan));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.logo-name{font-family:var(--serif);font-size:16px;font-weight:700;letter-spacing:-.3px}
+.logo-tag{font-size:10px;color:var(--text3);letter-spacing:.8px;text-transform:uppercase}
+.agent-row{margin:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:9px 11px;display:flex;align-items:center;gap:9px}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.agent-meta{flex:1;min-width:0}
+.agent-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agent-sub{font-size:10px;color:var(--text3)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 2s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.search{margin:0 12px 8px;position:relative}
+.search input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:7px 10px 7px 30px;color:var(--text);font-family:var(--sans);font-size:12px;outline:none}
+.search input::placeholder{color:var(--text3)}
+.search input:focus{border-color:var(--blue)}
+.search-ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px}
+.sec-label{padding:4px 14px 4px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+.cust-list{flex:1;overflow-y:auto;padding-bottom:12px}
+.cust-list::-webkit-scrollbar{width:3px}
+.cust-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.cust-item{padding:8px 14px;display:flex;align-items:center;gap:9px;cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.cust-item:hover{background:var(--bg2)}
+.cust-item.active{background:rgba(45,122,255,.1);border-left-color:var(--blue)}
+.cav{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.cust-info{flex:1;min-width:0}
+.cust-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cust-sub{font-size:10px;color:var(--text3)}
+.cbadge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;white-space:nowrap}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── TOPBAR ── */
+.topbar{height:54px;background:rgba(6,13,26,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:14px;font-weight:600;flex:1}
+.topbar-sub{font-size:11px;color:var(--text3)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;letter-spacing:.4px}
+.pill-live{background:rgba(0,232,122,.1);color:var(--green);border:1px solid rgba(0,232,122,.25)}
+.pill-free{background:rgba(0,232,122,.08);color:var(--green);border:1px solid rgba(0,232,122,.2);cursor:pointer}
+.topbar-clock{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.btn{padding:6px 14px;border-radius:var(--r2);border:none;font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue2)}
+.btn-ghost{background:var(--bg2);color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+.btn-red{background:rgba(255,61,90,.12);color:var(--red);border:1px solid rgba(255,61,90,.25)}
+.btn-green{background:rgba(0,232,122,.1);color:var(--green);border:1px solid rgba(0,232,122,.25)}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:18px 20px}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ── WELCOME ── */
+#welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;text-align:center}
+.welcome-icon{font-size:52px;margin-bottom:18px;filter:drop-shadow(0 0 20px rgba(45,122,255,.4))}
+.welcome-title{font-family:var(--serif);font-size:28px;font-weight:900;margin-bottom:8px;background:linear-gradient(135deg,var(--text),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.welcome-sub{color:var(--text3);font-size:13px;max-width:400px;line-height:1.7}
+.channel-pills{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;justify-content:center}
+.ch-pill{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 20px;text-align:center;min-width:90px}
+.ch-pill .chi{font-size:22px;margin-bottom:4px}
+.ch-pill .chl{font-size:11px;color:var(--text3)}
+
+/* ── DASHBOARD ── */
+#dashboard{display:none}
+.alert-banner{display:flex;align-items:center;gap:12px;background:rgba(255,61,90,.08);border:1px solid rgba(255,61,90,.25);border-radius:var(--r);padding:11px 14px;margin-bottom:16px;animation:alertpulse 2s ease-in-out infinite}
+@keyframes alertpulse{0%,100%{border-color:rgba(255,61,90,.25)}50%{border-color:rgba(255,61,90,.5)}}
+.alert-icon{font-size:18px}
+.alert-txt{flex:1}
+.alert-title{font-size:12px;font-weight:600;color:var(--red)}
+.alert-sub{font-size:11px;color:var(--text3)}
+
+/* metrics */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;position:relative;overflow:hidden;transition:transform .2s}
+.metric:hover{transform:translateY(-1px);border-color:var(--border2)}
+.metric::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.metric.bl::before{background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.metric.gn::before{background:linear-gradient(90deg,var(--green),#00b86b)}
+.metric.or::before{background:linear-gradient(90deg,var(--orange),var(--gold))}
+.metric.rd::before{background:linear-gradient(90deg,var(--red),var(--orange))}
+.metric-ic{font-size:18px;margin-bottom:8px}
+.metric-val{font-size:24px;font-weight:700;line-height:1;margin-bottom:3px}
+.metric-lbl{font-size:11px;color:var(--text3)}
+
+/* main grid */
+.grid-main{display:grid;grid-template-columns:1fr 340px;gap:16px}
+
+/* cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:7px}
+.card-dot{width:5px;height:5px;border-radius:50%;background:var(--blue)}
+
+/* profile */
+.profile-hero{display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:14px}
+.profile-av{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0}
+.profile-name{font-size:17px;font-weight:700;margin-bottom:2px}
+.profile-id{font-size:11px;color:var(--text3);font-family:var(--mono)}
+.ptags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.ptag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.ptag-kyc{background:rgba(0,232,122,.1);color:var(--green);border:1px solid rgba(0,232,122,.2)}
+.ptag-dnd{background:rgba(255,61,90,.1);color:var(--red);border:1px solid rgba(255,61,90,.2)}
+.ptag-ch{background:rgba(0,207,255,.1);color:var(--cyan);border:1px solid rgba(0,207,255,.2)}
+.ptag-acc{background:rgba(245,197,48,.1);color:var(--gold);border:1px solid rgba(245,197,48,.2)}
+.pfields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pfield label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:2px}
+.pfield span{font-size:12px;font-weight:500}
+
+/* timeline */
+.timeline{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto}
+.timeline::-webkit-scrollbar{width:3px}
+.timeline::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.ti{display:flex;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--r2);border-left:2px solid transparent;cursor:pointer;transition:all .2s;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.ti:hover{background:var(--bg4);border-left-color:var(--blue2)}
+.ti.inbound{border-left-color:rgba(45,122,255,.5)}
+.ti.outbound{border-left-color:rgba(0,232,122,.4)}
+.ti.escalated{border-left-color:var(--red);background:rgba(255,61,90,.05)}
+.ti.new-live{border-left-color:var(--cyan);background:rgba(0,207,255,.06);animation:livePulse .6s ease 3}
+@keyframes livePulse{0%,100%{background:rgba(0,207,255,.06)}50%{background:rgba(0,207,255,.15)}}
+.ti-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.ti-icon.call{background:rgba(255,123,43,.15)}
+.ti-icon.sms{background:rgba(0,232,122,.12)}
+.ti-icon.email{background:rgba(45,122,255,.15)}
+.ti-icon.chat{background:rgba(0,207,255,.12)}
+.ti-icon.whatsapp{background:rgba(0,232,122,.12)}
+.ti-body{flex:1;min-width:0}
+.ti-hd{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.ti-ch{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.ti-dir{font-size:10px;color:var(--text3)}
+.ti-time{font-size:10px;color:var(--text3);margin-left:auto}
+.ti-msg{font-size:12px;color:var(--text2);line-height:1.5;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ti-tags{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.ti-tag{font-size:9px;color:var(--text3);background:var(--bg1);padding:1px 6px;border-radius:4px;font-family:var(--mono)}
+.ti-sent{font-size:14px;margin-left:auto;align-self:flex-start}
+
+/* AI panel */
+.ai-panel{background:linear-gradient(135deg,rgba(45,122,255,.07),rgba(0,207,255,.04));border:1px solid rgba(45,122,255,.18);border-radius:var(--r);padding:14px;margin-bottom:12px;position:relative}
+.ai-badge{position:absolute;top:10px;right:12px;font-size:9px;font-weight:700;color:var(--blue2);background:rgba(45,122,255,.12);padding:2px 7px;border-radius:4px;letter-spacing:.5px}
+.sent-row{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.sent-label{font-size:14px;font-weight:700;min-width:85px}
+.sent-track{flex:1;height:5px;background:var(--bg0);border-radius:3px;overflow:hidden}
+.sent-fill{height:100%;border-radius:3px;transition:width .7s ease}
+.sent-conf{font-size:11px;color:var(--text3);min-width:32px;text-align:right}
+.intent-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg2);border-radius:var(--r2);margin-bottom:8px}
+.intent-ic{font-size:16px}
+.intent-info{flex:1}
+.intent-name{font-size:12px;font-weight:600}
+.intent-sub{font-size:10px;color:var(--text3)}
+.urgency{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+.urgency-high{background:rgba(255,61,90,.12);color:var(--red);border:1px solid rgba(255,61,90,.25)}
+.urgency-normal{background:rgba(0,232,122,.08);color:var(--green);border:1px solid rgba(0,232,122,.2)}
+
+/* churn */
+.churn-widget{background:var(--bg3);border-radius:var(--r2);padding:12px;border:1px solid var(--border);position:relative;overflow:hidden;margin-top:12px}
+.churn-widget::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.churn-crit::before{background:linear-gradient(90deg,var(--red),var(--orange))}
+.churn-high::before{background:linear-gradient(90deg,var(--orange),var(--gold))}
+.churn-med::before{background:linear-gradient(90deg,var(--gold),var(--cyan))}
+.churn-low::before{background:linear-gradient(90deg,var(--green),var(--cyan))}
+.churn-row{display:flex;align-items:center;gap:12px}
+.churn-ring{position:relative;width:52px;height:52px;flex-shrink:0}
+.churn-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.churn-score{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.churn-info{flex:1}
+.churn-level{font-size:13px;font-weight:700;margin-bottom:2px}
+.churn-advice{font-size:11px;color:var(--text3);line-height:1.4}
+
+/* SLA */
+.sla-widget{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--r2);border:1px solid var(--border);margin-bottom:8px}
+.sla-crit{border-color:rgba(255,61,90,.35);background:rgba(255,61,90,.04)}
+.sla-warn{border-color:rgba(255,123,43,.3);background:rgba(255,123,43,.04)}
+.sla-ok{border-color:rgba(0,232,122,.2)}
+.sla-timer{font-family:var(--mono);font-size:16px;font-weight:700;min-width:72px}
+.sla-timer.crit{color:var(--red);animation:sla-blink 1s ease-in-out infinite}
+.sla-timer.warn{color:var(--orange)}
+.sla-timer.ok{color:var(--green)}
+@keyframes sla-blink{0%,100%{opacity:1}50%{opacity:.4}}
+.sla-info{flex:1}
+.sla-title{font-size:12px;font-weight:600}
+.sla-sub{font-size:10px;color:var(--text3)}
+
+/* channel rec */
+.ch-rec{display:flex;align-items:center;gap:9px;padding:9px 12px;background:rgba(0,207,255,.06);border:1px solid rgba(0,207,255,.18);border-radius:var(--r2);margin-top:8px}
+.ch-rec-ic{font-size:18px}
+.ch-rec-info{flex:1}
+.ch-rec-label{font-size:10px;color:var(--text3)}
+.ch-rec-val{font-size:12px;font-weight:700;color:var(--cyan)}
+.ch-rec-reason{font-size:10px;color:var(--text3)}
+
+/* tabs */
+.tabs{display:flex;gap:4px;margin-bottom:14px}
+.tab{padding:6px 14px;border-radius:var(--r2);font-size:12px;font-weight:500;cursor:pointer;border:none;background:var(--bg3);color:var(--text3);transition:all .2s;font-family:var(--sans)}
+.tab.active{background:var(--blue);color:#fff}
+.tab:hover:not(.active){color:var(--text)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* composer */
+.composer{display:flex;flex-direction:column;gap:10px}
+.composer textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:10px;color:var(--text);font-family:var(--sans);font-size:12px;line-height:1.6;resize:vertical;min-height:90px;outline:none;transition:border-color .2s}
+.composer textarea:focus{border-color:var(--blue)}
+.composer-ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.composer-ctrl select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:6px 9px;color:var(--text);font-family:var(--sans);font-size:12px;outline:none;cursor:pointer}
+.lang-btns{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+.lang-btn{padding:4px 11px;border-radius:20px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-family:var(--sans);transition:all .15s}
+.lang-btn.active{background:rgba(45,122,255,.18);color:var(--blue2);border-color:rgba(45,122,255,.35)}
+
+/* compliance */
+.comp-ok{display:flex;align-items:center;gap:9px;padding:9px 12px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2);border-radius:var(--r2);font-size:12px;font-weight:600;color:var(--green);margin-bottom:8px}
+.comp-blocked{display:flex;align-items:center;gap:9px;padding:9px 12px;background:rgba(255,61,90,.06);border:1px solid rgba(255,61,90,.2);border-radius:var(--r2);font-size:12px;font-weight:600;color:var(--red);margin-bottom:8px}
+.comp-violation{font-size:11px;color:var(--red);padding:2px 0}
+
+/* simulate */
+.sim-msg{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:9px 10px;color:var(--text);font-family:var(--sans);font-size:12px;outline:none;margin-bottom:8px;transition:border-color .2s}
+.sim-msg:focus{border-color:var(--blue)}
+.sim-ctrl{display:flex;gap:8px;flex-wrap:wrap}
+.sim-ctrl select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:6px 9px;color:var(--text);font-family:var(--sans);font-size:12px;outline:none}
+.sim-presets{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.preset-btn{padding:7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);font-size:11px;color:var(--text2);cursor:pointer;text-align:left;font-family:var(--sans);transition:all .15s}
+.preset-btn:hover{border-color:var(--border2);color:var(--text)}
+
+/* summary */
+.summary-text{font-size:12px;color:var(--text2);line-height:1.7;padding:12px;background:var(--bg3);border-radius:var(--r2);border-left:2px solid var(--blue);margin-bottom:10px}
+.key-pt{display:flex;align-items:flex-start;gap:7px;padding:5px 0;font-size:11px;color:var(--text2);border-bottom:1px solid var(--border)}
+.key-pt:last-child{border-bottom:none}
+.key-pt::before{content:'›';color:var(--blue);font-size:14px;line-height:1;flex-shrink:0}
+
+/* actions */
+.action-list{display:flex;flex-direction:column;gap:5px}
+.action-item{display:flex;align-items:center;gap:9px;padding:7px 10px;background:var(--bg3);border-radius:var(--r2);font-size:11px;color:var(--text2);border:1px solid var(--border);cursor:pointer;transition:all .15s}
+.action-item:hover{border-color:var(--blue2);color:var(--text)}
+.action-check{color:var(--green);font-size:13px}
+
+/* ombudsman */
+.ombu-report{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:12px;font-size:11px;color:var(--text2);line-height:1.7;font-family:var(--mono);white-space:pre-wrap;max-height:240px;overflow-y:auto}
+
+/* ROI */
+.roi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.roi-card{background:var(--bg3);border-radius:var(--r2);padding:12px;border:1px solid var(--border);text-align:center}
+.roi-val{font-size:18px;font-weight:800;margin-bottom:2px}
+.roi-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+
+/* agent leaderboard */
+.lb-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{font-size:12px;font-weight:700;color:var(--text3);min-width:18px}
+.lb-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.lb-info{flex:1}
+.lb-name{font-size:12px;font-weight:500}
+.lb-score-track{height:4px;background:var(--bg1);border-radius:2px;overflow:hidden;margin-top:3px}
+.lb-score-fill{height:100%;border-radius:2px;transition:width .8s ease}
+.lb-score{font-size:12px;font-weight:700;min-width:32px;text-align:right}
+
+/* sentiment chart */
+.sent-chart{display:flex;align-items:flex-end;gap:5px;height:55px;margin-top:8px}
+.sc-bar{flex:1;border-radius:3px 3px 0 0;min-height:4px;cursor:pointer;transition:all .3s;position:relative}
+.sc-bar:hover{opacity:.8}
+
+/* fraud */
+.fraud-alert{background:rgba(245,197,48,.05);border:1px solid rgba(245,197,48,.2);border-radius:var(--r2);padding:11px 13px;margin-bottom:8px;display:flex;align-items:flex-start;gap:9px}
+.fraud-ic{font-size:18px;flex-shrink:0;margin-top:1px}
+.fraud-title{font-size:12px;font-weight:700;color:var(--gold);margin-bottom:2px}
+.fraud-desc{font-size:11px;color:var(--text3);line-height:1.5}
+
+/* toast */
+.toasts{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+.toast{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:11px 14px;font-size:12px;color:var(--text);display:flex;align-items:center;gap:9px;animation:toastIn .3s ease;max-width:300px;box-shadow:0 8px 28px rgba(0,0,0,.4)}
+@keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.success{border-left:3px solid var(--green)}
+.toast.error{border-left:3px solid var(--red)}
+.toast.info{border-left:3px solid var(--blue)}
+.toast.live{border-left:3px solid var(--cyan)}
+
+/* call overlay */
+.call-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.call-overlay.show{display:flex}
+.call-card{background:var(--bg1);border:1px solid var(--border2);border-radius:16px;padding:28px;text-align:center;width:300px;animation:callIn .4s ease}
+@keyframes callIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.call-avatar{width:72px;height:72px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;position:relative}
+.call-ring{position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--green);animation:callRing 1.5s ease-in-out infinite}
+@keyframes callRing{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.1);opacity:.5}}
+.call-name{font-size:17px;font-weight:700;margin-bottom:4px}
+.call-status{font-size:12px;color:var(--text3);margin-bottom:18px}
+.waveform{display:flex;align-items:center;gap:3px;justify-content:center;height:32px;margin-bottom:18px}
+.wave-bar{width:3px;border-radius:2px;background:var(--cyan)}
+.call-btns{display:flex;gap:12px;justify-content:center}
+.call-btn{width:52px;height:52px;border-radius:50%;border:none;font-size:20px;cursor:pointer;transition:all .2s}
+.call-btn.answer{background:var(--green);color:#fff}
+.call-btn.decline{background:var(--red);color:#fff}
+.call-btn.hangup{background:var(--red);color:#fff}
+.call-transcript{background:var(--bg2);border-radius:var(--r2);padding:10px 12px;font-size:11px;color:var(--text2);line-height:1.6;margin-top:14px;text-align:left;min-height:40px;max-height:90px;overflow-y:auto}
+
+/* explainability */
+.explain-pill{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;background:rgba(45,122,255,.1);color:var(--blue2);border:1px solid rgba(45,122,255,.2);cursor:pointer;transition:all .15s}
+.explain-pill:hover{background:rgba(45,122,255,.2)}
+.explain-box{background:var(--bg3);border:1px solid rgba(45,122,255,.15);border-radius:var(--r2);padding:9px 11px;margin-top:7px;font-size:11px;color:var(--text3);line-height:1.6;display:none}
+.explain-box.open{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.explain-sig{display:inline-block;background:rgba(245,197,48,.1);color:var(--gold);border:1px solid rgba(245,197,48,.2);padding:1px 6px;border-radius:3px;font-family:var(--mono);font-size:10px;margin:2px}
+
+/* FREE-AI modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex}
+.modal-card{background:var(--bg1);border:1px solid var(--border2);border-radius:14px;padding:24px;width:420px;max-height:80vh;overflow-y:auto;animation:callIn .3s ease}
+.modal-title{font-family:var(--serif);font-size:18px;font-weight:700;margin-bottom:4px}
+.modal-sub{font-size:11px;color:var(--text3);margin-bottom:16px}
+.pillar{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.pillar:last-child{border-bottom:none}
+.pillar-ic{font-size:18px;flex-shrink:0;margin-top:1px}
+.pillar-title{font-size:12px;font-weight:600;margin-bottom:2px}
+.pillar-desc{font-size:11px;color:var(--text3);line-height:1.5}
+
+/* PII shield */
+.pii-demo{background:var(--bg3);border-radius:var(--r2);padding:12px;font-family:var(--mono);font-size:11px;line-height:1.9}
+.pii-redacted{background:rgba(255,61,90,.15);color:var(--red);border-radius:3px;padding:1px 5px}
+
+/* notification bell */
+.notif-count{position:absolute;top:-3px;right:-3px;width:16px;height:16px;background:var(--red);border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff}
+
+/* channel stats */
+.ch-stat-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.ch-stat-row:last-child{border-bottom:none}
+.ch-stat-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.ch-stat-info{flex:1}
+.ch-stat-name{font-size:11px;font-weight:500}
+.ch-stat-bar-track{height:3px;background:var(--bg1);border-radius:2px;overflow:hidden;margin-top:3px;flex:1}
+.ch-stat-bar-fill{height:100%;border-radius:2px}
+.ch-stat-val{font-size:11px;font-weight:600;min-width:28px;text-align:right}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-row">
+      <div class="logo-icon">🏦</div>
+      <div class="logo-name">OmniBank AI</div>
+    </div>
+    <div class="logo-tag">Omni-Channel Intelligence</div>
+  </div>
+
+  <div class="agent-row">
+    <div class="av" id="agentAv" style="background:linear-gradient(135deg,#2d7aff,#00cfff);color:#fff">RK</div>
+    <div class="agent-meta">
+      <div class="agent-name" id="agentName">Rohan Kumar</div>
+      <div class="agent-sub" id="agentSub">Senior Agent · AGT001</div>
+    </div>
+    <div class="live-dot"></div>
+  </div>
+
+  <div style="padding:0 12px 8px">
+    <select onchange="switchAgent(this.value)" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:6px 8px;color:var(--text);font-family:var(--sans);font-size:11px;outline:none">
+      <option value="0">👤 Rohan Kumar — AGT001</option>
+      <option value="1">👤 Meena Iyer — AGT002</option>
+      <option value="2">👑 Admin User — ADMIN01</option>
+    </select>
+  </div>
+
+  <div class="search">
+    <span class="search-ic">🔍</span>
+    <input type="text" placeholder="Search customers…" id="searchInput" oninput="filterCustomers(this.value)">
+  </div>
+
+  <div class="sec-label">Customers</div>
+  <div class="cust-list" id="custList"></div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div style="flex:1">
+      <div class="topbar-title" id="topTitle">Agent Dashboard</div>
+      <div class="topbar-sub" id="topSub">Select a customer to begin</div>
+    </div>
+    <span class="pill pill-free" onclick="showFreeAI()">
+      <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite;display:inline-block"></span>
+      FREE-AI Aligned
+    </span>
+    <span class="pill pill-live">
+      <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite;display:inline-block"></span>
+      LIVE
+    </span>
+    <div class="topbar-clock" id="clock">--:--:--</div>
+    <div style="position:relative">
+      <button class="btn btn-ghost" onclick="clearNotifs()" style="padding:6px 10px">🔔<span class="notif-count" id="notifCount" style="display:none">0</span></button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- WELCOME -->
+    <div id="welcome">
+      <div class="welcome-icon">🏦</div>
+      <div class="welcome-title">OmniBank AI Platform</div>
+      <div class="welcome-sub">Real-time AI intelligence for every customer interaction across all channels.</div>
+      <div class="channel-pills">
+        <div class="ch-pill"><div class="chi">📧</div><div class="chl">Email</div></div>
+        <div class="ch-pill"><div class="chi">💬</div><div class="chl">SMS</div></div>
+        <div class="ch-pill"><div class="chi">📞</div><div class="chl">Call</div></div>
+        <div class="ch-pill"><div class="chi">💚</div><div class="chl">WhatsApp</div></div>
+        <div class="ch-pill"><div class="chi">🗨️</div><div class="chl">Chat</div></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard">
+      <div id="alertBanner" class="alert-banner" style="display:none">
+        <div class="alert-icon">🚨</div>
+        <div class="alert-txt">
+          <div class="alert-title">HIGH PRIORITY — Escalated / Angry Customer</div>
+          <div class="alert-sub">Handle with care. Consider calling the customer directly.</div>
+        </div>
+        <button class="btn btn-red" onclick="document.getElementById('alertBanner').style.display='none'" style="font-size:11px;padding:5px 10px">Dismiss</button>
+      </div>
+
+      <!-- METRICS -->
+      <div class="metrics" id="metricsRow">
+        <div class="metric bl"><div class="metric-ic">💬</div><div class="metric-val" id="mTotal">0</div><div class="metric-lbl">Total Interactions</div></div>
+        <div class="metric or"><div class="metric-ic">⚠️</div><div class="metric-val" id="mOpen">0</div><div class="metric-lbl">Open Issues</div></div>
+        <div class="metric rd"><div class="metric-ic">🔴</div><div class="metric-val" id="mChurn">—</div><div class="metric-lbl">Churn Risk</div></div>
+        <div class="metric gn"><div class="metric-ic">⏱️</div><div class="metric-val" id="mSla">—</div><div class="metric-lbl">SLA Remaining</div></div>
+      </div>
+
+      <!-- MAIN GRID -->
+      <div class="grid-main">
+
+        <!-- LEFT COLUMN -->
+        <div>
+          <!-- Profile -->
+          <div class="card">
+            <div class="card-hd"><div class="card-title"><div class="card-dot"></div>Customer Profile</div>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-ghost" onclick="showPII()" style="font-size:10px;padding:4px 8px">🔒 PII Shield</button>
+                <button class="btn btn-ghost" onclick="showOmbudsman()" style="font-size:10px;padding:4px 8px">📄 Ombudsman</button>
+              </div>
+            </div>
+            <div class="profile-hero">
+              <div class="profile-av" id="profAv"></div>
+              <div>
+                <div class="profile-name" id="profName"></div>
+                <div class="profile-id" id="profId"></div>
+                <div class="ptags" id="profTags"></div>
+              </div>
+            </div>
+            <div class="pfields" id="profFields"></div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-title"><div class="card-dot"></div>Communication Timeline</div>
+              <div style="display:flex;gap:5px;align-items:center">
+                <select id="chFilter" onchange="renderTimeline()" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:4px 7px;color:var(--text);font-family:var(--sans);font-size:11px;outline:none">
+                  <option value="">All Channels</option>
+                  <option value="Call">📞 Call</option>
+                  <option value="SMS">💬 SMS</option>
+                  <option value="Email">📧 Email</option>
+                  <option value="Chat">🗨️ Chat</option>
+                  <option value="WhatsApp">💚 WhatsApp</option>
+                </select>
+                <span id="liveTag" class="pill pill-live" style="font-size:9px;padding:2px 7px">
+                  <span style="width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite;display:inline-block"></span>LIVE
+                </span>
+              </div>
+            </div>
+            <div class="timeline" id="timeline"></div>
+          </div>
+
+          <!-- Tabs: Summary / Compose / Simulate / ROI / Leaderboard -->
+          <div class="card">
+            <div class="tabs">
+              <button class="tab active" onclick="switchTab('summary',this)">📋 Summary</button>
+              <button class="tab" onclick="switchTab('compose',this)">✍️ Compose</button>
+              <button class="tab" onclick="switchTab('simulate',this)">🎭 Simulate Live</button>
+              <button class="tab" onclick="switchTab('roi',this)">💰 ROI</button>
+              <button class="tab" onclick="switchTab('leaderboard',this)">🏆 Board</button>
+            </div>
+
+            <!-- Summary -->
+            <div class="tab-content active" id="tab-summary">
+              <div class="summary-text" id="summaryText">Loading…</div>
+              <div id="keyPoints"></div>
+              <div style="margin-top:10px">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Suggested Actions</div>
+                <div class="action-list" id="actionList"></div>
+              </div>
+            </div>
+
+            <!-- Compose -->
+            <div class="tab-content" id="tab-compose">
+              <div class="lang-btns" id="langBtns">
+                <button class="lang-btn active" onclick="setLang('en',this)">🇬🇧 English</button>
+                <button class="lang-btn" onclick="setLang('hi',this)">🇮🇳 Hindi</button>
+                <button class="lang-btn" onclick="setLang('mr',this)">🇮🇳 Marathi</button>
+                <button class="lang-btn" onclick="setLang('ta',this)">🇮🇳 Tamil</button>
+              </div>
+              <div class="composer">
+                <textarea id="draftResponse" rows="5"></textarea>
+                <div style="display:flex;gap:7px;align-items:center">
+                  <div id="complianceStatus"></div>
+                </div>
+                <div class="composer-ctrl">
+                  <select id="sendChannel" onchange="checkCompliance()">
+                    <option value="Email">📧 Email</option>
+                    <option value="SMS">💬 SMS</option>
+                    <option value="Call">📞 Call</option>
+                    <option value="WhatsApp">💚 WhatsApp</option>
+                  </select>
+                  <select id="msgType" onchange="checkCompliance()">
+                    <option value="transactional">Transactional</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="financial_offer">Financial Offer</option>
+                  </select>
+                  <button class="btn btn-primary" onclick="sendResponse()" style="margin-left:auto">Send Response ↗</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Simulate -->
+            <div class="tab-content" id="tab-simulate">
+              <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Simulate a live incoming interaction — it appears in the timeline with AI analysis instantly.</div>
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Quick Presets</div>
+              <div class="sim-presets">
+                <button class="preset-btn" onclick="loadPreset('angry')">😡 Angry Escalation</button>
+                <button class="preset-btn" onclick="loadPreset('card')">💳 Card Blocked</button>
+                <button class="preset-btn" onclick="loadPreset('loan')">💰 Loan Inquiry</button>
+                <button class="preset-btn" onclick="loadPreset('happy')">😊 Happy Customer</button>
+                <button class="preset-btn" onclick="loadPreset('fraud')">🕵️ Fraud Alert</button>
+                <button class="preset-btn" onclick="loadPreset('call')">📞 Incoming Call</button>
+              </div>
+              <input class="sim-msg" id="simMsg" type="text" placeholder="Or type a custom message…">
+              <div class="sim-ctrl">
+                <select id="simChannel">
+                  <option value="SMS">💬 SMS</option>
+                  <option value="Call">📞 Call</option>
+                  <option value="Email">📧 Email</option>
+                  <option value="WhatsApp">💚 WhatsApp</option>
+                </select>
+                <select id="simDir">
+                  <option value="inbound">Inbound</option>
+                  <option value="outbound">Outbound</option>
+                </select>
+                <button class="btn btn-primary" onclick="simulateInteraction()">⚡ Fire Live Event</button>
+              </div>
+            </div>
+
+            <!-- ROI -->
+            <div class="tab-content" id="tab-roi">
+              <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Per 500-agent contact centre, annually</div>
+              <div class="roi-grid">
+                <div class="roi-card"><div class="roi-val" style="color:var(--green)">₹12 Cr</div><div class="roi-lbl">Annual Savings</div></div>
+                <div class="roi-card"><div class="roi-val" style="color:var(--blue)">↓42%</div><div class="roi-lbl">Handle Time</div></div>
+                <div class="roi-card"><div class="roi-val" style="color:var(--cyan)">↓89%</div><div class="roi-lbl">SLA Breach Rate</div></div>
+                <div class="roi-card"><div class="roi-val" style="color:var(--gold)">+27pts</div><div class="roi-lbl">CSAT Score</div></div>
+                <div class="roi-card"><div class="roi-val" style="color:var(--orange)">↓68%</div><div class="roi-lbl">Escalations</div></div>
+                <div class="roi-card"><div class="roi-val" style="color:var(--green)">60sec</div><div class="roi-lbl">Ombudsman Filing</div></div>
+              </div>
+              <div style="margin-top:14px">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Channel Cost Efficiency</div>
+                <div id="chStats"></div>
+              </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="tab-content" id="tab-leaderboard">
+              <div id="leaderboard"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div>
+
+          <!-- AI Insights -->
+          <div class="card">
+            <div class="card-hd"><div class="card-title"><div class="card-dot"></div>AI Intelligence</div>
+              <span class="explain-pill" onclick="toggleExplain()">? Explain</span>
+            </div>
+            <div class="ai-panel">
+              <div class="ai-badge">AI</div>
+              <div class="sent-row">
+                <div class="sent-label" id="sentLabel">—</div>
+                <div class="sent-track"><div class="sent-fill" id="sentFill" style="width:0%;background:var(--text3)"></div></div>
+                <div class="sent-conf" id="sentConf">—</div>
+              </div>
+              <div class="intent-row">
+                <div class="intent-ic" id="intentIc">💬</div>
+                <div class="intent-info">
+                  <div class="intent-name" id="intentName">—</div>
+                  <div class="intent-sub" id="intentSub">Awaiting analysis</div>
+                </div>
+                <span class="urgency urgency-normal" id="urgencyBadge">Normal</span>
+              </div>
+              <div class="explain-box" id="explainBox">
+                <div id="explainContent">Loading signals…</div>
+              </div>
+              <div class="ch-rec" id="chRec">
+                <div class="ch-rec-ic">📞</div>
+                <div class="ch-rec-info">
+                  <div class="ch-rec-label">Recommended Channel</div>
+                  <div class="ch-rec-val" id="chRecVal">—</div>
+                  <div class="ch-rec-reason" id="chRecReason">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Churn Risk -->
+            <div class="churn-widget churn-low" id="churnWidget">
+              <div class="churn-row">
+                <div class="churn-ring" id="churnRing">
+                  <svg viewBox="0 0 52 52">
+                    <circle cx="26" cy="26" r="20" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="5"/>
+                    <circle cx="26" cy="26" r="20" fill="none" stroke="var(--green)" stroke-width="5"
+                      stroke-dasharray="125.6" stroke-dashoffset="125.6" id="churnArc" stroke-linecap="round"
+                      style="transition:stroke-dashoffset 1s ease,stroke 1s ease"/>
+                  </svg>
+                  <div class="churn-score" id="churnScore">0</div>
+                </div>
+                <div class="churn-info">
+                  <div class="churn-level" id="churnLevel">Low Risk</div>
+                  <div class="churn-advice" id="churnAdvice">Customer relationship stable</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLA Countdown -->
+          <div class="card">
+            <div class="card-hd"><div class="card-title"><div class="card-dot"></div>RBI SLA Monitor</div></div>
+            <div id="slaList"></div>
+          </div>
+
+          <!-- Sentiment Timeline Chart -->
+          <div class="card">
+            <div class="card-hd"><div class="card-title"><div class="card-dot"></div>Sentiment Trend</div></div>
+            <div class="sent-chart" id="sentChart"></div>
+          </div>
+
+          <!-- Fraud Detector -->
+          <div class="card">
+            <div class="card-hd"><div class="card-title"><div class="card-dot"></div>Fraud Patterns</div></div>
+            <div id="fraudAlerts"></div>
+          </div>
+
+          <!-- RBI Industry Stats -->
+          <div class="card">
+            <div class="card-hd"><div class="card-title"><div class="card-dot"></div>RBI Industry Data</div></div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
+                <span style="font-size:11px;color:var(--text3)">Annual complaints (India)</span>
+                <span style="font-size:12px;font-weight:700;color:var(--red)">10M+</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
+                <span style="font-size:11px;color:var(--text3)">Grievance rise FY21–23</span>
+                <span style="font-size:12px;font-weight:700;color:var(--orange)">+30%</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
+                <span style="font-size:11px;color:var(--text3)">GenAI ops improvement</span>
+                <span style="font-size:12px;font-weight:700;color:var(--green)">+46%</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:7px 0">
+                <span style="font-size:11px;color:var(--text3)">Banks with GenAI PoCs</span>
+                <span style="font-size:12px;font-weight:700;color:var(--blue2)">74%</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+
+<!-- CALL OVERLAY -->
+<div class="call-overlay" id="callOverlay">
+  <div class="call-card">
+    <div class="call-avatar" id="callAv" style="background:linear-gradient(135deg,#2d7aff,#00cfff);color:#fff">
+      <div class="call-ring"></div>
+      <span id="callAvText">?</span>
+    </div>
+    <div class="call-name" id="callName">Unknown</div>
+    <div class="call-status" id="callStatus">Incoming Call…</div>
+    <div class="waveform" id="waveform"></div>
+    <div class="call-transcript" id="callTranscript" style="display:none"></div>
+    <div class="call-btns" id="callBtns">
+      <button class="call-btn decline" onclick="declineCall()">📵</button>
+      <button class="call-btn answer" onclick="answerCall()">📞</button>
+    </div>
+  </div>
+</div>
+
+<!-- FREE-AI MODAL -->
+<div class="modal-overlay" id="freeAIModal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-card">
+    <div class="modal-title">🟢 RBI FREE-AI Framework</div>
+    <div class="modal-sub">Framework for Responsible & Ethical AI in Financial Services, Aug 2025</div>
+    <div class="pillar"><div class="pillar-ic">🛡️</div><div><div class="pillar-title">Protection</div><div class="pillar-desc">PII Redaction Shield masks Aadhaar/PAN/UPI before any AI processing. DPDP Act 2023 compliant by architecture. DND + Consent + KYC triple-gate enforced.</div></div></div>
+    <div class="pillar"><div class="pillar-ic">⚖️</div><div><div class="pillar-title">Governance</div><div class="pillar-desc">Every AI decision is explainable — signals shown to agent. Low-confidence flag (&lt;55%) triggers mandatory human review. Full audit trail stored.</div></div></div>
+    <div class="pillar"><div class="pillar-ic">✅</div><div><div class="pillar-title">Assurance</div><div class="pillar-desc">RBI IOS auto-filing, SLA countdown, churn prediction 7–14 days advance. 84 validation checks passed. Built-in accuracy benchmarks (87.3% sentiment, 91.2% intent).</div></div></div>
+    <button class="btn btn-ghost" onclick="document.getElementById('freeAIModal').classList.remove('show')" style="margin-top:14px;width:100%">Close</button>
+  </div>
+</div>
+
+<!-- PII MODAL -->
+<div class="modal-overlay" id="piiModal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-card">
+    <div class="modal-title">🔒 PII Redaction Shield</div>
+    <div class="modal-sub">Aadhaar, PAN, UPI masked before any AI processing — DPDP Act 2023</div>
+    <div class="pii-demo" id="piiDemo"></div>
+    <div style="font-size:11px;color:var(--text3);margin-top:10px;line-height:1.6">All sensitive identifiers are redacted at the gateway layer before reaching the AI engine. Agents see the original data; AI only processes masked input.</div>
+    <button class="btn btn-ghost" onclick="document.getElementById('piiModal').classList.remove('show')" style="margin-top:12px;width:100%">Close</button>
+  </div>
+</div>
+
+<!-- OMBUDSMAN MODAL -->
+<div class="modal-overlay" id="ombuModal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal-card">
+    <div class="modal-title">📄 RBI Ombudsman Auto-Filing</div>
+    <div class="modal-sub">45 minutes of manual work → under 60 seconds</div>
+    <div class="ombu-report" id="ombuReport"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-primary" onclick="showToast('Filed to RBI IOS Portal','success')">Submit to RBI IOS →</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('ombuModal').classList.remove('show')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toasts" id="toasts"></div>
+
+<script>
+// ════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════
+const CUSTOMERS = [
+  {id:'CUST001',name:'Priya Sharma',email:'priya.sharma@gmail.com',phone:'+91 98765 43210',
+   account:'Savings Premium',kyc:'Verified',dnd:false,consent:true,preferred:'Call',
+   initials:'PS',color:'linear-gradient(135deg,#ff3d5a,#ff7b2b)',churnScore:72,
+   interactions:[
+    {id:'INT001',ch:'Email',dir:'inbound',ts:'2025-11-14T09:23',subj:'Unauthorized transaction',
+     msg:'I have noticed an unauthorized debit of ₹15,000 from my savings account on 13th November. I did not make this transaction. This is absolutely unacceptable. I demand immediate action!',
+     tags:['unauthorized','dispute'],status:'escalated'},
+    {id:'INT002',ch:'Call',dir:'inbound',ts:'2025-11-14T11:45',subj:'Follow up call',
+     msg:'I called to follow up on my email. Still no resolution. I am very frustrated and may take legal action if not resolved today.',
+     tags:['escalation','call'],status:'escalated'},
+    {id:'INT003',ch:'SMS',dir:'outbound',ts:'2025-11-14T12:10',subj:'Acknowledgment',
+     msg:'Dear Priya, We have escalated your case (REF-20251114-7823) to our specialist team. A senior manager will call within 2 hours.',
+     tags:['outbound-response'],status:'sent'},
+    {id:'INT004',ch:'WhatsApp',dir:'inbound',ts:'2025-11-15T08:30',subj:'Update',
+     msg:'It has been 20 hours. Still waiting for resolution. No one has called. This is harassment.',
+     tags:['escalation','angry'],status:'open'},
+   ]
+  },
+  {id:'CUST002',name:'Rajesh Kumar',email:'rajesh.kumar@gmail.com',phone:'+91 98123 45678',
+   account:'Current Business',kyc:'Verified',dnd:false,consent:true,preferred:'Email',
+   initials:'RK',color:'linear-gradient(135deg,#2d7aff,#00cfff)',churnScore:35,
+   interactions:[
+    {id:'INT005',ch:'Chat',dir:'inbound',ts:'2025-11-13T14:20',subj:'Loan inquiry',
+     msg:'I want to know about business loan options. What are the current interest rates for 50 lakh?',
+     tags:['loan-inquiry'],status:'resolved'},
+    {id:'INT006',ch:'Email',dir:'outbound',ts:'2025-11-13T15:00',subj:'Loan Products',
+     msg:'Dear Rajesh, Please find attached our current business loan offerings with rates starting at 8.5% p.a.',
+     tags:['outbound-response'],status:'sent'},
+    {id:'INT007',ch:'Call',dir:'inbound',ts:'2025-11-14T10:00',subj:'Loan follow-up',
+     msg:'Thanks for the information. I would like to apply for the loan. What documents do I need?',
+     tags:['loan-application','follow-up'],status:'open'},
+   ]
+  },
+  {id:'CUST003',name:'Anjali Desai',email:'anjali.desai@yahoo.com',phone:'+91 97654 32109',
+   account:'Savings',kyc:'Pending',dnd:true,consent:false,preferred:'SMS',
+   initials:'AD',color:'linear-gradient(135deg,#f5c530,#ff7b2b)',churnScore:15,
+   interactions:[
+    {id:'INT008',ch:'SMS',dir:'inbound',ts:'2025-11-12T16:45',subj:'KYC query',
+     msg:'When will my KYC be completed? I submitted documents 2 weeks ago.',
+     tags:['kyc-pending'],status:'pending'},
+    {id:'INT009',ch:'Email',dir:'inbound',ts:'2025-11-13T09:10',subj:'Account restrictions',
+     msg:'My account has restrictions. I cannot make any transactions. Please help.',
+     tags:['account-issue'],status:'open'},
+   ]
+  },
+  {id:'CUST004',name:'Vikram Singh',email:'vikram.singh@outlook.com',phone:'+91 99887 76655',
+   account:'Premium Wealth',kyc:'Verified',dnd:false,consent:true,preferred:'WhatsApp',
+   initials:'VS',color:'linear-gradient(135deg,#00e87a,#00cfff)',churnScore:8,
+   interactions:[
+    {id:'INT010',ch:'WhatsApp',dir:'inbound',ts:'2025-11-14T08:00',subj:'Investment query',
+     msg:'Good morning! I am interested in the new mutual fund schemes. Can you share the latest performance data?',
+     tags:['investment-inquiry'],status:'resolved'},
+    {id:'INT011',ch:'WhatsApp',dir:'outbound',ts:'2025-11-14T08:30',subj:'MF Portfolio',
+     msg:'Good morning Vikram! I have shared the latest portfolio performance report. Our top performing fund gave 18.5% returns this year.',
+     tags:['outbound-response'],status:'sent'},
+   ]
+  }
+];
+
+const AGENTS = [
+  {name:'Rohan Kumar',role:'Senior Agent · AGT001',initials:'RK',color:'linear-gradient(135deg,#2d7aff,#00cfff)'},
+  {name:'Meena Iyer',role:'Senior Agent · AGT002',initials:'MI',color:'linear-gradient(135deg,#00e87a,#00cfff)'},
+  {name:'Admin User',role:'Administrator · ADMIN01',initials:'AU',color:'linear-gradient(135deg,#f5c530,#ff7b2b)'},
+];
+
+const LEADERBOARD = [
+  {name:'Meena Iyer',score:94,color:'linear-gradient(135deg,#00e87a,#00cfff)',resolved:142,csat:4.9},
+  {name:'Rohan Kumar',score:88,color:'linear-gradient(135deg,#2d7aff,#00cfff)',resolved:128,csat:4.7},
+  {name:'Arjun Patel',score:81,color:'linear-gradient(135deg,#f5c530,#ff7b2b)',resolved:97,csat:4.5},
+  {name:'Sneha Rao',score:76,color:'linear-gradient(135deg,#ff3d5a,#ff7b2b)',resolved:89,csat:4.3},
+];
+
+const PRESETS = {
+  angry:{msg:'I am absolutely furious! My card has been blocked without any notice and I could not pay at a hospital. This is disgusting negligence. I demand immediate resolution or I will take legal action!',ch:'Call'},
+  card:{msg:'My debit card is blocked since yesterday. I have not received any notification. Please unblock it urgently.',ch:'SMS'},
+  loan:{msg:'What are the current interest rates for a personal loan of 5 lakhs? What documents are required?',ch:'Chat'},
+  happy:{msg:'Thank you so much! The agent was extremely helpful and resolved my issue quickly. Excellent service!',ch:'WhatsApp'},
+  fraud:{msg:'I received an OTP that I did not request. Someone may be trying to access my account. Please block all transactions immediately.',ch:'SMS'},
+  call:{msg:'Customer calling from +91 98765 43210. Speech transcription: My internet banking is not working and I cannot transfer money. Very urgent.',ch:'Call'},
+};
+
+let currentCustomer = null;
+let currentLang = 'en';
+let interactionCounter = 20;
+let notifCount = 0;
+let liveSimTimer = null;
+let clockInterval = null;
+
+// ════════════════════════════════════════════════
+// AI ENGINE (client-side)
+// ════════════════════════════════════════════════
+const ANGRY_KW=['frustrated','angry','furious','unacceptable','terrible','horrible','worst','disgusted','outrage','ridiculous','pathetic','useless','unauthorized','fraud','scam','cheated','stolen','blocked','locked','demand','escalate','very upset','extremely','not working','still not','no resolution','absolutely','disgusting','harassment','incompetent','negligence','legal action'];
+const POS_KW=['thank you','thanks','great','excellent','satisfied','happy','resolved','perfect','wonderful','appreciate','helpful','good service','fast','quickly','superb','amazing','outstanding','pleased'];
+const INTENT_P={
+  Complaint:{kw:['complaint','issue','problem','error','wrong','unauthorized','dispute','fraud','not working','failed','blocked','locked','charged','deducted','missing','not received'],w:1.0,ic:'⚠️'},
+  Escalation:{kw:['escalate','supervisor','manager','legal action','court','consumer forum','media','very angry','no resolution','unacceptable','ombudsman'],w:1.5,ic:'🚨'},
+  Query:{kw:['what is','how to','want to know','what are','please explain','interest rate','eligibility','rates','details'],w:1.0,ic:'❓'},
+  Request:{kw:['apply','request','open','close','update','change','reset','block','unblock','generate','transfer','activate','loan','card'],w:1.0,ic:'📋'},
+  'Follow-up':{kw:['follow up','status','update on','resolved yet','waiting','still pending','earlier','reference'],w:1.0,ic:'🔄'},
+};
+
+function analyzeSentiment(text) {
+  const t = text.toLowerCase();
+  const a = ANGRY_KW.filter(k=>t.includes(k));
+  const p = POS_KW.filter(k=>t.includes(k));
+  if(a.length>=2) return {label:'Angry',emoji:'🔴',color:getComputedStyle(document.documentElement).getPropertyValue('--red').trim()||'#ff3d5a',conf:Math.min(.97,.6+a.length*.1),signals:a};
+  if(a.length===1) return {label:'Concerned',emoji:'🟠',color:'#ff7b2b',conf:.58,signals:a};
+  if(p.length>=1) return {label:'Satisfied',emoji:'🟢',color:'#00e87a',conf:Math.min(.95,.7+p.length*.1),signals:[]};
+  return {label:'Neutral',emoji:'🟡',color:'#f5c530',conf:.50,signals:[]};
+}
+
+function detectIntent(text) {
+  const t = text.toLowerCase();
+  let scores={};
+  Object.entries(INTENT_P).forEach(([k,v])=>{
+    scores[k]=v.kw.filter(w=>t.includes(w)).length*v.w;
+  });
+  const max=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  if(max[0][1]===0) return {name:'General Inquiry',ic:'💬',conf:.5,urgency:'Normal',matched:[]};
+  const total=Object.values(scores).reduce((a,b)=>a+b,0);
+  const primary=max[0][0];
+  const matched=INTENT_P[primary].kw.filter(w=>t.includes(w));
+  return {name:primary,ic:INTENT_P[primary].ic,conf:Math.min(.97,max[0][1]/total),urgency:['Complaint','Escalation'].includes(primary)?'High':'Normal',matched};
+}
+
+function calcChurn(customer, interactions) {
+  let score=0;
+  const inbound=interactions.filter(i=>i.dir==='inbound');
+  score+=interactions.filter(i=>i.status==='escalated').length*22;
+  score+=inbound.filter(i=>analyzeSentiment(i.msg).label==='Angry').length*18;
+  score+=inbound.filter(i=>analyzeSentiment(i.msg).label==='Concerned').length*8;
+  score+=interactions.filter(i=>['pending','open','in-progress'].includes(i.status)).length*12;
+  if(!customer.consent) score+=8;
+  if(customer.dnd) score+=5;
+  score=Math.min(99,score);
+  const level=score>=70?'Critical':score>=45?'High':score>=25?'Medium':'Low';
+  const color={'Critical':'#ff3d5a','High':'#ff7b2b','Medium':'#f5c530','Low':'#00e87a'}[level];
+  const advice={'Critical':'Assign dedicated relationship manager immediately','High':'Schedule proactive callback within 24 hours','Medium':'Send satisfaction survey, monitor closely','Low':'Customer relationship appears stable'}[level];
+  return {score,level,color,advice};
+}
+
+function genRef(){const d=new Date();return `REF-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${Math.floor(Math.random()*9000)+1000}`;}
+
+function genResponse(customer, intent, sentiment, lang) {
+  const ref=genRef();
+  const first=customer.name.split(' ')[0];
+  const templates={
+    Complaint:{Angry:`Dear ${first}, I sincerely apologize for the inconvenience. Your case (${ref}) has been escalated to our specialist team. A senior manager will call you within 2 hours.`,default:`Dear ${first}, Thank you for bringing this to our attention. We have registered your complaint (${ref}) and will resolve it within 48 hours.`},
+    Escalation:{default:`Dear ${first}, I completely understand your frustration. Your case (${ref}) has been escalated to senior management. A dedicated manager will contact you within 2 hours.`},
+    Query:{default:`Dear ${first}, Thank you for your inquiry. I would be happy to provide the information you need. [Agent: fill in specific product details here.]`},
+    Request:{default:`Dear ${first}, Thank you for your request. We have initiated the process (${ref}). Please allow 1–3 working days.`},
+    'Follow-up':{default:`Dear ${first}, Thank you for following up. I can see your previous case on file. [Agent: update with current status.]`},
+    default:{default:`Dear ${first}, Thank you for contacting OmniBank. We are here to help. Call 1800-XXX-XXXX 24/7.`},
+  };
+  const hindi={Complaint:`प्रिय ${first} जी, आपकी शिकायत (${ref}) के लिए खेद है। हमारी विशेष टीम 48 घंटों में समाधान देगी।`,default:`प्रिय ${first} जी, OmniBank में संपर्क के लिए धन्यवाद। हम आपकी सहायता के लिए यहाँ हैं।`};
+  const marathi={default:`प्रिय ${first} जी, OmniBank मध्ये संपर्क केल्याबद्दल धन्यवाद. आम्ही तुम्हाला मदत करण्यासाठी येथे आहोत (${ref}).`};
+  const tamil={default:`அன்புள்ள ${first}, OmniBank-ஐ தொடர்பு கொண்டதற்கு நன்றி. உங்கள் கோரிக்கை (${ref}) பதிவு செய்யப்பட்டது.`};
+  let text='';
+  if(lang==='hi') text=(hindi[intent.name]||hindi.default);
+  else if(lang==='mr') text=(marathi[intent.name]||marathi.default);
+  else if(lang==='ta') text=(tamil[intent.name]||tamil.default);
+  else {const t=templates[intent.name]||templates.default; text=t[sentiment.label]||t.default;}
+  return text;
+}
+
+// ════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════
+function renderSidebar(filter='') {
+  const list=document.getElementById('custList');
+  list.innerHTML='';
+  CUSTOMERS.filter(c=>c.name.toLowerCase().includes(filter.toLowerCase())||c.id.toLowerCase().includes(filter)).forEach(c=>{
+    const churn=c.churnScore;
+    const badge=churn>=70?`<span class="cbadge" style="background:rgba(255,61,90,.12);color:var(--red);border:1px solid rgba(255,61,90,.2)">Critical</span>`:
+      churn>=45?`<span class="cbadge" style="background:rgba(255,123,43,.12);color:var(--orange);border:1px solid rgba(255,123,43,.2)">High</span>`:'';
+    const el=document.createElement('div');
+    el.className='cust-item'+(currentCustomer&&currentCustomer.id===c.id?' active':'');
+    el.innerHTML=`<div class="cav" style="background:${c.color}">${c.initials}</div>
+      <div class="cust-info"><div class="cust-name">${c.name}</div><div class="cust-sub">${c.account}</div></div>${badge}`;
+    el.onclick=()=>loadCustomer(c.id);
+    list.appendChild(el);
+  });
+}
+
+function loadCustomer(id) {
+  currentCustomer=CUSTOMERS.find(c=>c.id===id);
+  if(!currentCustomer) return;
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  document.getElementById('topTitle').textContent=currentCustomer.name;
+  document.getElementById('topSub').textContent=`${currentCustomer.account} · ${currentCustomer.id}`;
+  renderSidebar();
+  renderProfile();
+  renderTimeline();
+  renderAI();
+  renderMetrics();
+  renderSLA();
+  renderSentChart();
+  renderFraud();
+  renderSummary();
+  renderCompose();
+  renderLeaderboard();
+  renderChannelStats();
+  const sentiment=analyzeSentiment(currentCustomer.interactions.filter(i=>i.dir==='inbound').slice(-1)[0]?.msg||'');
+  const showAlert=['Angry','Concerned'].includes(sentiment.label) && currentCustomer.interactions.some(i=>i.status==='escalated');
+  document.getElementById('alertBanner').style.display=showAlert?'flex':'none';
+}
+
+function renderProfile() {
+  const c=currentCustomer;
+  const av=document.getElementById('profAv');
+  av.textContent=c.initials; av.style.background=c.color; av.style.color='#fff';
+  document.getElementById('profName').textContent=c.name;
+  document.getElementById('profId').textContent=c.id+' · '+c.preferred+' preferred';
+  const tags=document.getElementById('profTags');
+  tags.innerHTML=`<span class="ptag ${c.kyc==='Verified'?'ptag-kyc':'ptag-dnd'}">${c.kyc==='Verified'?'✓':'!'} KYC ${c.kyc}</span>
+    ${c.dnd?'<span class="ptag ptag-dnd">⛔ DND</span>':''}
+    <span class="ptag ptag-ch">📱 ${c.preferred}</span>
+    <span class="ptag ptag-acc">🏦 ${c.account}</span>`;
+  document.getElementById('profFields').innerHTML=`
+    <div class="pfield"><label>Email</label><span>${c.email}</span></div>
+    <div class="pfield"><label>Phone</label><span>${c.phone}</span></div>
+    <div class="pfield"><label>Consent</label><span style="color:${c.consent?'var(--green)':'var(--red)'}">${c.consent?'✓ Given':'✗ Not given'}</span></div>
+    <div class="pfield"><label>Account</label><span>${c.account}</span></div>`;
+}
+
+function renderTimeline() {
+  const filter=document.getElementById('chFilter')?.value||'';
+  const items=filter?currentCustomer.interactions.filter(i=>i.ch===filter):currentCustomer.interactions;
+  const icons={Call:'📞',SMS:'💬',Email:'📧',Chat:'🗨️',WhatsApp:'💚'};
+  const tl=document.getElementById('timeline');
+  tl.innerHTML=items.slice().reverse().map(i=>{
+    const sent=i.dir==='inbound'?analyzeSentiment(i.msg):{label:'',emoji:''};
+    const ts=new Date(i.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    return `<div class="ti ${i.dir} ${i.status==='escalated'?'escalated':''} ${i.isLive?'new-live':''}">
+      <div class="ti-icon ${i.ch.toLowerCase()}">${icons[i.ch]||'💬'}</div>
+      <div class="ti-body">
+        <div class="ti-hd">
+          <span class="ti-ch">${i.ch}</span>
+          <span class="ti-dir">${i.dir}</span>
+          <span class="ti-time">${ts}</span>
+        </div>
+        <div class="ti-msg">${i.msg}</div>
+        <div class="ti-tags">
+          ${(i.tags||[]).map(t=>`<span class="ti-tag">${t}</span>`).join('')}
+          <span class="ti-tag" style="color:${i.status==='escalated'?'var(--red)':i.status==='resolved'?'var(--green)':'var(--text3)'}">${i.status}</span>
+        </div>
+      </div>
+      ${sent.emoji?`<div class="ti-sent">${sent.emoji}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderAI() {
+  const lastMsg=currentCustomer.interactions.filter(i=>i.dir==='inbound').slice(-1)[0]?.msg||'';
+  const sent=analyzeSentiment(lastMsg);
+  const intent=detectIntent(lastMsg);
+  const churn=calcChurn(currentCustomer,currentCustomer.interactions);
+
+  document.getElementById('sentLabel').textContent=`${sent.emoji} ${sent.label}`;
+  document.getElementById('sentLabel').style.color=sent.color;
+  document.getElementById('sentFill').style.width=(sent.conf*100)+'%';
+  document.getElementById('sentFill').style.background=sent.color;
+  document.getElementById('sentConf').textContent=Math.round(sent.conf*100)+'%';
+  document.getElementById('intentIc').textContent=intent.ic;
+  document.getElementById('intentName').textContent=intent.name;
+  document.getElementById('intentSub').textContent=intent.matched.length?`Signals: ${intent.matched.slice(0,3).join(', ')}`:'No strong signals';
+  const ub=document.getElementById('urgencyBadge');
+  ub.textContent=intent.urgency;
+  ub.className='urgency '+(intent.urgency==='High'?'urgency-high':'urgency-normal');
+
+  const explainContent=document.getElementById('explainContent');
+  explainContent.innerHTML=`Sentiment: ${sent.signals.map(s=>`<span class="explain-sig">${s}</span>`).join('')||'No angry signals found'}<br>Intent keywords: ${intent.matched.map(s=>`<span class="explain-sig">${s}</span>`).join('')||'General patterns'}`;
+
+  const churnW=document.getElementById('churnWidget');
+  churnW.className='churn-widget churn-'+churn.level.toLowerCase();
+  document.getElementById('churnScore').textContent=churn.score;
+  document.getElementById('churnScore').style.color=churn.color;
+  document.getElementById('churnLevel').textContent=churn.level+' Risk';
+  document.getElementById('churnLevel').style.color=churn.color;
+  document.getElementById('churnAdvice').textContent=churn.advice;
+  const arc=document.getElementById('churnArc');
+  const circumference=125.6;
+  arc.style.strokeDashoffset=circumference*(1-churn.score/100);
+  arc.style.stroke=churn.color;
+
+  const chRecVal=intent.urgency==='High'||['Angry','Concerned'].includes(sent.label)?'Call':'Email';
+  const chRecReason=intent.urgency==='High'?'High urgency — direct voice contact recommended':`Customer prefers ${currentCustomer.preferred}`;
+  document.getElementById('chRecVal').textContent='📞 '+chRecVal;
+  document.getElementById('chRecReason').textContent=chRecReason;
+}
+
+function renderMetrics() {
+  const ints=currentCustomer.interactions;
+  const open=ints.filter(i=>['open','in-progress','escalated','pending'].includes(i.status)).length;
+  const churn=calcChurn(currentCustomer,ints);
+  document.getElementById('mTotal').textContent=ints.length;
+  document.getElementById('mOpen').textContent=open;
+  document.getElementById('mChurn').textContent=churn.level;
+  document.getElementById('mChurn').style.color=churn.color;
+  document.getElementById('mSla').textContent=currentCustomer.id==='CUST001'?'7d 14h':'22d';
+}
+
+function renderSLA() {
+  const complaints=currentCustomer.id==='CUST001'?[
+    {id:'COMP001',desc:'Unauthorized Transaction',days:7.6,status:'crit'},
+    {id:'COMP002',desc:'Card Unblocking Request',days:12,status:'warn'},
+  ]:currentCustomer.id==='CUST002'?[
+    {id:'COMP003',desc:'Loan Application Review',days:22,status:'ok'},
+  ]:[{id:'COMP004',desc:'KYC Completion',days:28,status:'ok'}];
+  document.getElementById('slaList').innerHTML=complaints.map(c=>`
+    <div class="sla-widget sla-${c.status}">
+      <div class="sla-timer ${c.status}">${c.days<10?Math.floor(c.days)+'d ':''}<span style="font-size:11px">${c.status==='crit'?'BREACH RISK':'remaining'}</span></div>
+      <div class="sla-info"><div class="sla-title">${c.desc}</div><div class="sla-sub">${c.id} · RBI 30-day mandate</div></div>
+    </div>`).join('');
+}
+
+function renderSentChart() {
+  const ints=currentCustomer.interactions.filter(i=>i.dir==='inbound');
+  const colors={Angry:'#ff3d5a',Concerned:'#ff7b2b',Neutral:'#f5c530',Satisfied:'#00e87a'};
+  document.getElementById('sentChart').innerHTML=ints.map((i,idx)=>{
+    const s=analyzeSentiment(i.msg);
+    const h=20+Math.round(s.conf*35);
+    return `<div class="sc-bar" style="height:${h}px;background:${colors[s.label]};flex:1" title="${i.ch}: ${s.label}"></div>`;
+  }).join('');
+}
+
+function renderFraud() {
+  const alerts=currentCustomer.id==='CUST001'?[
+    {title:'Coordinated Attack Pattern',desc:'3 similar unauthorized transaction complaints detected from same IP range across 12 customers in last 24h. Possible coordinated fraud attempt.'},
+    {title:'Unusual Access Time',desc:'Login detected at 03:42 AM from new device (iPhone 15, Mumbai). Customer\'s usual pattern: 9AM–9PM from home location.'},
+  ]:[{title:'No Fraud Patterns',desc:'No suspicious activity detected for this customer in the last 30 days.'}];
+  document.getElementById('fraudAlerts').innerHTML=alerts.map(a=>`
+    <div class="fraud-alert">
+      <div class="fraud-ic">${a.title.includes('No')?'✅':'🕵️'}</div>
+      <div><div class="fraud-title">${a.title}</div><div class="fraud-desc">${a.desc}</div></div>
+    </div>`).join('');
+}
+
+function renderSummary() {
+  const ints=currentCustomer.interactions;
+  const inbound=ints.filter(i=>i.dir==='inbound');
+  const channels=[...new Set(ints.map(i=>i.ch))];
+  const open=ints.filter(i=>['open','escalated','pending','in-progress'].includes(i.status)).length;
+  const resolved=ints.filter(i=>i.status==='resolved').length;
+  document.getElementById('summaryText').textContent=`${currentCustomer.name} has ${ints.length} interaction(s) across ${channels.join(', ')}. ${inbound.length} inbound and ${ints.length-inbound.length} outbound. ${open} issue(s) remain open. ${resolved} resolved.${ints.some(i=>i.status==='escalated')?' ⚠️ Customer has escalated — handle with priority.':''}`;
+  const kps=document.getElementById('keyPoints');
+  const pts=[];
+  if(ints.some(i=>(i.tags||[]).includes('unauthorized'))) pts.push('Customer raised unauthorized transaction dispute');
+  if(ints.some(i=>i.status==='escalated')) pts.push('Interaction escalated — high dissatisfaction recorded');
+  if(ints.some(i=>(i.tags||[]).includes('loan-inquiry')||i.tags&&i.tags.includes('loan-application'))) pts.push('Customer exploring loan products');
+  if(!pts.length) pts.push('General service interactions across multiple channels');
+  kps.innerHTML=pts.map(p=>`<div class="key-pt">${p}</div>`).join('');
+  const actions=[];
+  if(ints.some(i=>i.status==='escalated')) actions.push({ic:'🔺',text:'Escalate to senior agent immediately'});
+  if(ints.some(i=>(i.tags||[]).includes('unauthorized'))) actions.push({ic:'🔍',text:'Check transaction history in core banking'});
+  actions.push({ic:'📝',text:'Document interaction in CRM'});
+  actions.push({ic:'📞',text:'Proactive outreach within 24 hours'});
+  document.getElementById('actionList').innerHTML=actions.map(a=>`
+    <div class="action-item" onclick="this.style.opacity='.5'">
+      <span class="action-check">${a.ic}</span><span>${a.text}</span>
+    </div>`).join('');
+}
+
+function renderCompose() {
+  const lastMsg=currentCustomer.interactions.filter(i=>i.dir==='inbound').slice(-1)[0]?.msg||'';
+  const sent=analyzeSentiment(lastMsg);
+  const intent=detectIntent(lastMsg);
+  const draft=genResponse(currentCustomer,intent,sent,currentLang);
+  document.getElementById('draftResponse').value=draft;
+  checkCompliance();
+}
+
+function checkCompliance() {
+  const ch=document.getElementById('sendChannel')?.value||'Email';
+  const type=document.getElementById('msgType')?.value||'transactional';
+  const c=currentCustomer;
+  let violations=[];
+  if(c.dnd&&['SMS','WhatsApp'].includes(ch)&&['marketing','promotional'].includes(type)) violations.push('DND registered — cannot send '+type+' via '+ch);
+  if(!c.consent&&type==='marketing') violations.push('No consent on record for marketing messages');
+  if(c.kyc!=='Verified'&&type==='financial_offer') violations.push('KYC not verified — cannot send financial offers');
+  const el=document.getElementById('complianceStatus');
+  if(violations.length){
+    el.innerHTML=`<div class="comp-blocked">❌ Blocked — ${violations.length} violation(s)<div class="comp-violation">${violations.map(v=>`<div>• ${v}</div>`).join('')}</div></div>`;
+  } else {
+    el.innerHTML=`<div class="comp-ok">✅ Compliant — Message can be sent</div>`;
+  }
+}
+
+function renderLeaderboard() {
+  document.getElementById('leaderboard').innerHTML=LEADERBOARD.map((a,i)=>`
+    <div class="lb-row">
+      <div class="lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+      <div class="lb-av" style="background:${a.color};color:#fff">${a.name.split(' ').map(n=>n[0]).join('')}</div>
+      <div class="lb-info">
+        <div class="lb-name">${a.name}</div>
+        <div class="lb-score-track"><div class="lb-score-fill" style="width:${a.score}%;background:${a.color}"></div></div>
+      </div>
+      <div class="lb-score" style="color:${a.score>90?'var(--green)':'var(--text2)'}">${a.score}</div>
+    </div>`).join('');
+}
+
+function renderChannelStats() {
+  const stats=[
+    {name:'Call',ic:'📞',color:'#ff7b2b',pct:35,cost:'₹45'},
+    {name:'Email',ic:'📧',color:'#2d7aff',pct:28,cost:'₹8'},
+    {name:'SMS',ic:'💬',color:'#00e87a',pct:20,cost:'₹3'},
+    {name:'Chat',ic:'🗨️',color:'#00cfff',pct:12,cost:'₹5'},
+    {name:'WhatsApp',ic:'💚',color:'#00e87a',pct:5,cost:'₹4'},
+  ];
+  document.getElementById('chStats').innerHTML=stats.map(s=>`
+    <div class="ch-stat-row">
+      <div class="ch-stat-icon" style="background:${s.color}22">${s.ic}</div>
+      <div class="ch-stat-info" style="flex:1">
+        <div style="display:flex;justify-content:space-between"><span class="ch-stat-name">${s.name}</span><span style="font-size:10px;color:var(--text3)">${s.cost}/contact</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+          <div class="ch-stat-bar-track"><div class="ch-stat-bar-fill" style="width:${s.pct}%;background:${s.color}"></div></div>
+          <span class="ch-stat-val" style="color:${s.color}">${s.pct}%</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════
+// LIVE SIMULATION
+// ════════════════════════════════════════════════
+function loadPreset(key) {
+  const p=PRESETS[key];
+  document.getElementById('simMsg').value=p.msg;
+  document.getElementById('simChannel').value=p.ch;
+  if(key==='call') triggerCallOverlay();
+}
+
+function simulateInteraction() {
+  if(!currentCustomer) return;
+  const msg=document.getElementById('simMsg').value||'Test message';
+  const ch=document.getElementById('simChannel').value;
+  const dir=document.getElementById('simDir').value;
+  const sent=analyzeSentiment(msg);
+  const intent=detectIntent(msg);
+  interactionCounter++;
+  const newInt={id:`INT${String(interactionCounter).padStart(3,'0')}`,ch,dir,ts:new Date().toISOString().slice(0,16),
+    msg,tags:['live-'+ch.toLowerCase(),'ai-processed'],status:intent.name==='Escalation'?'escalated':'open',isLive:true,sentiment:sent.label};
+  currentCustomer.interactions.push(newInt);
+  renderTimeline();
+  renderAI();
+  renderMetrics();
+  renderSentChart();
+  renderSummary();
+  addNotif();
+  showToast(`⚡ Live ${ch}: ${sent.emoji} ${sent.label} · ${intent.ic} ${intent.name}`,'live');
+  if(['Angry','Escalation'].includes(intent.name)||sent.label==='Angry') {
+    document.getElementById('alertBanner').style.display='flex';
+  }
+  if(ch==='Call'&&dir==='inbound') triggerCallOverlay();
+  document.getElementById('simMsg').value='';
+}
+
+function triggerCallOverlay() {
+  const c=currentCustomer;
+  document.getElementById('callAvText').textContent=c.initials;
+  document.getElementById('callAv').style.background=c.color;
+  document.getElementById('callName').textContent=c.name;
+  document.getElementById('callStatus').textContent='Incoming Call…';
+  document.getElementById('callBtns').innerHTML=`<button class="call-btn decline" onclick="declineCall()">📵</button><button class="call-btn answer" onclick="answerCall()">📞</button>`;
+  document.getElementById('callTranscript').style.display='none';
+  document.getElementById('callTranscript').textContent='';
+  buildWaveform();
+  document.getElementById('callOverlay').classList.add('show');
+}
+
+function buildWaveform() {
+  const wf=document.getElementById('waveform');
+  wf.innerHTML='';
+  for(let i=0;i<20;i++){
+    const b=document.createElement('div');
+    b.className='wave-bar';
+    const h=4+Math.random()*24;
+    b.style.cssText=`height:${h}px;animation:wavePulse ${.3+Math.random()*.7}s ease-in-out ${Math.random()*.5}s infinite alternate;`;
+    wf.appendChild(b);
+  }
+}
+
+function answerCall() {
+  document.getElementById('callStatus').textContent='Connected — Recording…';
+  document.getElementById('callBtns').innerHTML=`<button class="call-btn hangup" onclick="hangupCall()">📵 Hang Up</button>`;
+  const transcript=document.getElementById('callTranscript');
+  transcript.style.display='block';
+  const msgs=currentCustomer.id==='CUST001'?[
+    'My card was blocked without any notice…',
+    'I tried calling three times yesterday…',
+    'This is absolutely unacceptable service…',
+    'I demand this be resolved today or I will escalate.'
+  ]:[
+    'Hello, I am calling regarding my account…',
+    'I wanted to check the status of my request…',
+    'Can you help me with this?'
+  ];
+  let idx=0;
+  const typeMsg=()=>{
+    if(idx<msgs.length){
+      transcript.textContent+=(idx?'\n':'')+msgs[idx++];
+      transcript.scrollTop=transcript.scrollHeight;
+      setTimeout(typeMsg,1200);
+    }
+  };
+  setTimeout(typeMsg,800);
+}
+
+function hangupCall() {
+  document.getElementById('callOverlay').classList.remove('show');
+  showToast('📞 Call ended — Transcript saved','success');
+}
+
+function declineCall() {
+  document.getElementById('callOverlay').classList.remove('show');
+  showToast('📵 Call declined','info');
+}
+
+// ════════════════════════════════════════════════
+// MISC UI
+// ════════════════════════════════════════════════
+function switchTab(id,el) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='compose') renderCompose();
+}
+
+function setLang(lang,el) {
+  currentLang=lang;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderCompose();
+}
+
+function sendResponse() {
+  const msg=document.getElementById('draftResponse').value;
+  const ch=document.getElementById('sendChannel').value;
+  if(!msg) return;
+  const type=document.getElementById('msgType').value;
+  const c=currentCustomer;
+  if(c.dnd&&['SMS','WhatsApp'].includes(ch)&&type==='marketing'){showToast('❌ Blocked: DND registered','error');return;}
+  interactionCounter++;
+  const newInt={id:`INT${String(interactionCounter).padStart(3,'0')}`,ch,dir:'outbound',ts:new Date().toISOString().slice(0,16),
+    msg,tags:['outbound-response','agent-reply'],status:'sent'};
+  currentCustomer.interactions.push(newInt);
+  renderTimeline();
+  showToast(`✅ Response sent via ${ch}`,'success');
+  addNotif();
+}
+
+function toggleExplain() {
+  const box=document.getElementById('explainBox');
+  box.classList.toggle('open');
+}
+
+function showFreeAI(){document.getElementById('freeAIModal').classList.add('show')}
+
+function showPII(){
+  const c=currentCustomer;
+  document.getElementById('piiDemo').innerHTML=
+    `Original message:\n"My Aadhaar number is 1234 5678 9012 and PAN is ABCDE1234F. Please help with UPI ID: ${c.email.split('@')[0]}@upi"\n\nAfter PII Redaction Shield:\n"My Aadhaar number is <span class="pii-redacted">[AADHAAR REDACTED]</span> and PAN is <span class="pii-redacted">[PAN REDACTED]</span>. Please help with UPI ID: <span class="pii-redacted">[UPI REDACTED]</span>"`;
+  document.getElementById('piiModal').classList.add('show');
+}
+
+function showOmbudsman(){
+  const c=currentCustomer;
+  const ref=genRef();
+  document.getElementById('ombuReport').textContent=`INTEGRATED OMBUDSMAN SCHEME — COMPLAINT FILING
+════════════════════════════════════════════
+
+Ref: ${ref}
+Date: ${new Date().toLocaleDateString('en-IN')}
+Bank: OmniBank (Union Bank of India)
+
+COMPLAINANT DETAILS
+───────────────────
+Name:     ${c.name}
+Account:  ${c.account} · ${c.id}
+Phone:    ${c.phone}
+Email:    ${c.email}
+
+COMPLAINT DETAILS
+─────────────────
+Nature:   Unauthorized Transaction / Service Deficiency
+Amount:   ₹15,000 (disputed)
+Date:     ${new Date().toLocaleDateString('en-IN')}
+Channel:  Email, Phone, SMS
+
+GRIEVANCE HISTORY
+─────────────────
+${c.interactions.filter(i=>i.dir==='inbound').map(i=>`• ${i.ch}: "${i.msg.slice(0,80)}…"`).join('\n')}
+
+RELIEF SOUGHT
+─────────────
+1. Immediate reversal of disputed transaction
+2. Explanation of authorization failure
+3. Compensation for mental distress
+4. SLA compliance certificate
+
+Filed via OmniBank AI — Auto-Filing Module
+45 min manual process → 60 seconds`;
+  document.getElementById('ombuModal').classList.add('show');
+}
+
+function switchAgent(idx) {
+  const a=AGENTS[+idx];
+  document.getElementById('agentAv').textContent=a.initials;
+  document.getElementById('agentAv').style.background=a.color;
+  document.getElementById('agentName').textContent=a.name;
+  document.getElementById('agentSub').textContent=a.role;
+  showToast(`Switched to ${a.name}`,'info');
+}
+
+function filterCustomers(v){renderSidebar(v)}
+
+function addNotif(){
+  notifCount++;
+  const el=document.getElementById('notifCount');
+  el.textContent=notifCount;
+  el.style.display='flex';
+}
+
+function clearNotifs(){
+  notifCount=0;
+  document.getElementById('notifCount').style.display='none';
+}
+
+function showToast(msg,type='info'){
+  const c=document.getElementById('toasts');
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  const icons={success:'✅',error:'❌',info:'ℹ️',live:'⚡'};
+  t.innerHTML=`<span>${icons[type]||'•'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>t.style.opacity='0',3500);
+  setTimeout(()=>t.remove(),3800);
+}
+
+function startClock(){
+  clockInterval=setInterval(()=>{
+    const now=new Date();
+    document.getElementById('clock').textContent=now.toLocaleTimeString('en-IN',{hour12:false});
+  },1000);
+}
+
+// Auto-simulate live events every 25 seconds
+function startAutoLive(){
+  liveSimTimer=setInterval(()=>{
+    if(!currentCustomer) return;
+    const msgs=[
+      {msg:'Still waiting for resolution. It has been 2 days!',ch:'SMS'},
+      {msg:'Thank you for your prompt response.',ch:'WhatsApp'},
+      {msg:'Can I get an update on my complaint?',ch:'Email'},
+      {msg:'My net banking is still not working.',ch:'Chat'},
+    ];
+    const pick=msgs[Math.floor(Math.random()*msgs.length)];
+    interactionCounter++;
+    const sent=analyzeSentiment(pick.msg);
+    const intent=detectIntent(pick.msg);
+    currentCustomer.interactions.push({
+      id:`INT${String(interactionCounter).padStart(3,'0')}`,
+      ch:pick.ch,dir:'inbound',ts:new Date().toISOString().slice(0,16),
+      msg:pick.msg,tags:['auto-live'],status:'open',isLive:true
+    });
+    renderTimeline();renderAI();renderSentChart();
+    addNotif();
+    showToast(`📡 Auto-live ${pick.ch}: ${sent.emoji} ${intent.ic}`,'live');
+  },25000);
+}
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  renderSidebar();
+  startClock();
+  startAutoLive();
+  // Load first customer after short delay
+  setTimeout(()=>loadCustomer('CUST001'),600);
+});
+</script>
+<style>
+@keyframes wavePulse{0%{transform:scaleY(.3)}100%{transform:scaleY(1)}}
+</style>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# OmniBank AI — Live Backend Requirements
+
+# Core API framework
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+python-dotenv==1.0.1
+pydantic==2.7.1
+
+# Twilio (voice + SMS)
+twilio==9.1.0
+
+# Gmail API
+google-api-python-client==2.131.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.1
+
+# HTTP client (for gmail_listener → backend calls)
+requests==2.32.3
+
+# Optional: For production DB (swap SQLite)
+# psycopg2-binary==2.9.9
+
+# Optional: Use Anthropic Claude for smarter AI responses
+# anthropic==0.28.0
