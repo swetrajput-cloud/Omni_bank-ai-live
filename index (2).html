@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OmniBank AI — Omni-Channel Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0a0f1e;
+  --navy2: #0f1829;
+  --navy3: #151f35;
+  --navy4: #1c2a45;
+  --blue: #1e6fff;
+  --blue2: #3d83ff;
+  --blue-glow: rgba(30,111,255,0.18);
+  --cyan: #00d4ff;
+  --gold: #f5c842;
+  --green: #00e676;
+  --orange: #ff6b2b;
+  --red: #ff3b5c;
+  --text: #e8edf8;
+  --text2: #8fa3c8;
+  --text3: #4a5f82;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --card: rgba(15,24,41,0.9);
+  --radius: 14px;
+  --radius2: 10px;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --serif: 'Playfair Display', serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--navy);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated background grid */
+body::before {
+  content:'';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(30,111,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30,111,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── LAYOUT ─── */
+.app { display:flex; min-height:100vh; position:relative; z-index:1; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background: var(--navy2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top:0; left:0; bottom:0;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.logo {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  border-radius: 10px;
+  display: flex; align-items:center; justify-content:center;
+  font-size: 18px;
+  box-shadow: 0 0 20px var(--blue-glow);
+}
+.logo-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+.logo-sub {
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.agent-pill {
+  margin: 14px 16px;
+  background: var(--navy3);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.agent-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e6fff, #00d4ff);
+  display: flex; align-items:center; justify-content:center;
+  font-size: 13px; font-weight: 600;
+  color: white; flex-shrink: 0;
+}
+.agent-info { flex:1; min-width:0; }
+.agent-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.agent-role { font-size: 11px; color: var(--text3); }
+.online-dot {
+  width:8px; height:8px; border-radius:50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+.search-box {
+  margin: 0 16px 10px;
+  position: relative;
+}
+.search-box input {
+  width: 100%;
+  background: var(--navy3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px 9px 34px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-box input::placeholder { color: var(--text3); }
+.search-box input:focus { border-color: var(--blue2); }
+.search-icon {
+  position:absolute; left:10px; top:50%; transform:translateY(-50%);
+  color: var(--text3); font-size:13px;
+}
+
+.sidebar-section-label {
+  padding: 8px 16px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.customer-list { flex:1; overflow-y:auto; padding-bottom: 20px; }
+.customer-list::-webkit-scrollbar { width:4px; }
+.customer-list::-webkit-scrollbar-track { background:transparent; }
+.customer-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius:2px; }
+
+.customer-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+}
+.customer-item:hover { background: var(--navy3); }
+.customer-item.active {
+  background: rgba(30,111,255,0.1);
+  border-left-color: var(--blue);
+}
+.cust-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items:center; justify-content:center;
+  font-size: 13px; font-weight: 700;
+  flex-shrink: 0;
+}
+.cust-info { flex:1; min-width:0; }
+.cust-name { font-size: 13px; font-weight: 500; color: var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cust-meta { font-size: 11px; color: var(--text3); }
+.cust-badge {
+  font-size: 10px; font-weight: 600;
+  padding: 2px 7px; border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* ─── MAIN CONTENT ─── */
+.main {
+  margin-left: 260px;
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── TOP BAR ─── */
+.topbar {
+  background: rgba(10,15,30,0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top:0; z-index:50;
+}
+.topbar-left { display:flex; align-items:center; gap:16px; }
+.topbar-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.topbar-subtitle { font-size: 12px; color: var(--text3); }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+
+.btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  display: inline-flex; align-items:center; gap:6px;
+}
+.btn-primary {
+  background: var(--blue);
+  color: white;
+  box-shadow: 0 0 20px var(--blue-glow);
+}
+.btn-primary:hover { background: var(--blue2); box-shadow: 0 0 30px var(--blue-glow); }
+.btn-ghost {
+  background: var(--navy3);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+.btn-danger { background: rgba(255,59,92,0.15); color: var(--red); border: 1px solid rgba(255,59,92,0.3); }
+
+/* ─── CONTENT AREA ─── */
+.content { padding: 24px 28px; flex:1; }
+
+/* ─── GRID LAYOUTS ─── */
+.grid-3 { display:grid; grid-template-columns: repeat(3,1fr); gap:16px; margin-bottom:20px; }
+.grid-2 { display:grid; grid-template-columns: repeat(2,1fr); gap:16px; margin-bottom:20px; }
+.grid-main { display:grid; grid-template-columns: 1fr 380px; gap:20px; }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+.card-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: flex; align-items:center; gap:8px;
+}
+.card-title .dot {
+  width:6px; height:6px; border-radius:50%;
+  background: var(--blue);
+  box-shadow: 0 0 8px var(--blue);
+}
+
+/* ─── METRIC CARDS ─── */
+.metric-card {
+  background: var(--navy3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.metric-card:hover { transform: translateY(-2px); border-color: var(--border2); }
+.metric-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+}
+.metric-card.blue::before { background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+.metric-card.green::before { background: linear-gradient(90deg, var(--green), #00b8a9); }
+.metric-card.orange::before { background: linear-gradient(90deg, var(--orange), var(--gold)); }
+.metric-card.red::before { background: linear-gradient(90deg, var(--red), #ff6b2b); }
+.metric-icon { font-size: 22px; margin-bottom: 10px; }
+.metric-value { font-size: 28px; font-weight: 700; color: var(--text); line-height:1; margin-bottom:4px; }
+.metric-label { font-size: 12px; color: var(--text3); }
+.metric-delta { font-size: 11px; margin-top: 8px; display:flex; align-items:center; gap:4px; }
+.delta-up { color: var(--green); }
+.delta-down { color: var(--red); }
+
+/* ─── CUSTOMER PROFILE ─── */
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.profile-avatar {
+  width: 64px; height: 64px; border-radius: 16px;
+  display:flex; align-items:center; justify-content:center;
+  font-size: 24px; font-weight: 700;
+  flex-shrink: 0;
+  position: relative;
+}
+.profile-avatar .status-ring {
+  position:absolute; inset:-3px;
+  border-radius: 18px;
+  border: 2px solid transparent;
+}
+.profile-name { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom:2px; }
+.profile-id { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+.profile-tags { display:flex; gap:6px; margin-top: 8px; flex-wrap:wrap; }
+
+.tag {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+  white-space: nowrap;
+}
+.tag-premium { background: rgba(245,200,66,0.15); color: var(--gold); border: 1px solid rgba(245,200,66,0.3); }
+.tag-standard { background: rgba(30,111,255,0.15); color: var(--blue2); border: 1px solid rgba(30,111,255,0.3); }
+.tag-kyc-ok { background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+.tag-kyc-pending { background: rgba(255,107,43,0.12); color: var(--orange); border: 1px solid rgba(255,107,43,0.25); }
+.tag-dnd { background: rgba(255,59,92,0.12); color: var(--red); border: 1px solid rgba(255,59,92,0.25); }
+.tag-channel { background: rgba(0,212,255,0.1); color: var(--cyan); border: 1px solid rgba(0,212,255,0.2); }
+
+.profile-fields { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.field-row { display:flex; flex-direction:column; gap:2px; }
+.field-label { font-size: 10px; color: var(--text3); text-transform:uppercase; letter-spacing:0.5px; }
+.field-value { font-size: 13px; color: var(--text); font-weight:500; }
+.field-value.mono { font-family: var(--mono); font-size:12px; }
+
+/* ─── AI INSIGHTS ─── */
+.ai-panel {
+  background: linear-gradient(135deg, rgba(30,111,255,0.08), rgba(0,212,255,0.05));
+  border: 1px solid rgba(30,111,255,0.2);
+  border-radius: var(--radius2);
+  padding: 16px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.ai-panel::before {
+  content:'AI';
+  position:absolute; right:14px; top:10px;
+  font-size:10px; font-weight:700; color: var(--blue2);
+  letter-spacing:1px;
+  background: rgba(30,111,255,0.15);
+  padding: 2px 8px; border-radius:4px;
+}
+
+.sentiment-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.sentiment-label {
+  font-size: 15px; font-weight: 700;
+  min-width: 90px;
+}
+.sentiment-track {
+  flex:1; height:6px; background: var(--navy4); border-radius:3px; overflow:hidden;
+}
+.sentiment-fill { height:100%; border-radius:3px; transition: width 0.6s ease; }
+.sentiment-conf { font-size:12px; color: var(--text3); min-width:36px; text-align:right; }
+
+.intent-row {
+  display:flex; align-items:center; gap:8px;
+  padding: 8px 12px;
+  background: var(--navy3);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.intent-icon { font-size:18px; }
+.intent-info { flex:1; }
+.intent-name { font-size:13px; font-weight:600; color:var(--text); }
+.intent-sub { font-size:11px; color:var(--text3); }
+.intent-urgency {
+  font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px;
+  text-transform:uppercase; letter-spacing:0.5px;
+}
+.urgency-high { background: rgba(255,59,92,0.15); color:var(--red); border:1px solid rgba(255,59,92,0.3); }
+.urgency-normal { background: rgba(0,230,118,0.1); color:var(--green); border:1px solid rgba(0,230,118,0.25); }
+
+/* ─── CHANNEL BADGE ─── */
+.channel-rec {
+  display:flex; align-items:center; gap:10px;
+  padding: 10px 14px;
+  background: rgba(0,212,255,0.07);
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 8px;
+  margin-top: 8px;
+}
+.channel-rec-icon { font-size:20px; }
+.channel-rec-info { flex:1; }
+.channel-rec-label { font-size:11px; color:var(--text3); }
+.channel-rec-value { font-size:13px; font-weight:700; color:var(--cyan); }
+.channel-rec-reason { font-size:11px; color:var(--text3); }
+
+/* ─── TIMELINE ─── */
+.timeline { display:flex; flex-direction:column; gap:10px; max-height:420px; overflow-y:auto; }
+.timeline::-webkit-scrollbar { width:4px; }
+.timeline::-webkit-scrollbar-thumb { background: var(--border2); border-radius:2px; }
+
+.timeline-item {
+  display:flex; gap:12px;
+  padding: 12px 14px;
+  background: var(--navy3);
+  border-radius: var(--radius2);
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.timeline-item:hover { background: var(--navy4); border-left-color: var(--blue2); }
+.timeline-item.inbound { border-left-color: rgba(30,111,255,0.5); }
+.timeline-item.outbound { border-left-color: rgba(0,230,118,0.4); }
+.timeline-item.escalated { border-left-color: var(--red); background: rgba(255,59,92,0.05); }
+
+.ti-icon {
+  width:34px; height:34px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px; flex-shrink:0;
+}
+.ti-icon.email { background: rgba(30,111,255,0.15); }
+.ti-icon.sms { background: rgba(0,230,118,0.12); }
+.ti-icon.chat { background: rgba(0,212,255,0.12); }
+.ti-icon.call { background: rgba(255,107,43,0.12); }
+
+.ti-body { flex:1; min-width:0; }
+.ti-header { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+.ti-channel { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; }
+.ti-dir { font-size:10px; color:var(--text3); }
+.ti-time { font-size:11px; color:var(--text3); margin-left:auto; }
+.ti-msg { font-size:12px; color:var(--text2); line-height:1.5; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.ti-tags { display:flex; gap:4px; margin-top:6px; flex-wrap:wrap; }
+.ti-tag { font-size:10px; color:var(--text3); background: var(--navy2); padding:1px 7px; border-radius:4px; font-family:var(--mono); }
+.ti-sentiment { margin-left:auto; font-size:13px; align-self:flex-start; }
+
+/* ─── AI SUMMARY ─── */
+.summary-text {
+  font-size: 13px; color: var(--text2); line-height:1.7;
+  padding: 14px;
+  background: var(--navy3);
+  border-radius: 8px;
+  border-left: 3px solid var(--blue);
+  margin-bottom: 12px;
+}
+.key-point {
+  display:flex; align-items:flex-start; gap:8px;
+  padding: 6px 0;
+  font-size: 12px; color:var(--text2);
+  border-bottom: 1px solid var(--border);
+}
+.key-point:last-child { border-bottom:none; }
+.key-point::before { content:'›'; color:var(--blue); font-size:16px; line-height:1; flex-shrink:0; }
+
+/* ─── RESPONSE COMPOSER ─── */
+.composer {
+  display:flex; flex-direction:column; gap:12px;
+}
+.composer textarea {
+  width:100%;
+  background: var(--navy3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 12px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 100px;
+  outline:none;
+  transition: border-color 0.2s;
+}
+.composer textarea:focus { border-color: var(--blue2); }
+.composer-controls { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.composer-controls select {
+  background: var(--navy3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  outline:none;
+  cursor:pointer;
+}
+.composer-controls select:focus { border-color: var(--blue2); }
+
+/* ─── COMPLIANCE ─── */
+.compliance-status {
+  display:flex; align-items:center; gap:10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size:13px; font-weight:600;
+  margin-bottom: 10px;
+}
+.compliance-ok { background: rgba(0,230,118,0.08); border:1px solid rgba(0,230,118,0.25); color:var(--green); }
+.compliance-blocked { background: rgba(255,59,92,0.08); border:1px solid rgba(255,59,92,0.25); color:var(--red); }
+.compliance-violations { font-size:11px; color:var(--red); margin-top:4px; }
+.compliance-violations div { padding:3px 0; }
+
+/* ─── SIMULATE PANEL ─── */
+.simulate-panel { margin-top:20px; }
+.sim-input {
+  width:100%;
+  background: var(--navy3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 12px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  outline:none;
+  transition: border-color 0.2s;
+  margin-bottom:10px;
+}
+.sim-input:focus { border-color: var(--blue2); }
+.sim-controls { display:flex; gap:10px; align-items:center; }
+.sim-controls select {
+  background: var(--navy3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  outline:none;
+}
+
+/* ─── NOTIFICATION ─── */
+.toast-container { position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+.toast {
+  background: var(--navy2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size:13px; color:var(--text);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  display:flex; align-items:center; gap:10px;
+  animation: slideIn 0.3s ease;
+  max-width: 320px;
+}
+@keyframes slideIn { from{transform:translateX(120%); opacity:0;} to{transform:translateX(0); opacity:1;} }
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error   { border-left: 3px solid var(--red); }
+.toast.info    { border-left: 3px solid var(--blue); }
+
+/* ─── ESCALATION ALERT ─── */
+.escalation-alert {
+  background: linear-gradient(135deg, rgba(255,59,92,0.1), rgba(255,107,43,0.08));
+  border: 1px solid rgba(255,59,92,0.35);
+  border-radius: var(--radius2);
+  padding: 12px 16px;
+  display:flex; align-items:center; gap:12px;
+  margin-bottom: 20px;
+  animation: alertPulse 2s ease-in-out infinite;
+}
+@keyframes alertPulse { 0%,100%{border-color:rgba(255,59,92,0.35);} 50%{border-color:rgba(255,59,92,0.65);} }
+.alert-icon { font-size:22px; }
+.alert-text { flex:1; }
+.alert-title { font-size:14px; font-weight:700; color:var(--red); }
+.alert-desc { font-size:12px; color:var(--text3); }
+
+/* ─── SECTION TABS ─── */
+.tabs { display:flex; gap:4px; margin-bottom:16px; }
+.tab {
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size:13px; font-weight:500;
+  cursor:pointer; border:none;
+  background: var(--navy3);
+  color: var(--text3);
+  transition: all 0.2s;
+}
+.tab.active { background: var(--blue); color:white; box-shadow: 0 0 16px var(--blue-glow); }
+.tab:hover:not(.active) { color:var(--text); }
+
+/* ─── SENTIMENT CHART ─── */
+.sentiment-chart { display:flex; align-items:flex-end; gap:6px; height:60px; margin-top:10px; }
+.sc-bar {
+  flex:1; border-radius:4px 4px 0 0;
+  min-height:4px;
+  transition: height 0.5s ease;
+  position:relative;
+  cursor:pointer;
+}
+.sc-bar::after {
+  content: attr(data-label);
+  position:absolute; bottom:-18px; left:50%; transform:translateX(-50%);
+  font-size:9px; color:var(--text3); white-space:nowrap;
+}
+
+/* ─── LIVE INDICATOR ─── */
+.live-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11px; font-weight:600;
+  color: var(--green);
+  background: rgba(0,230,118,0.1);
+  border: 1px solid rgba(0,230,118,0.25);
+  padding: 3px 10px; border-radius:20px;
+}
+.live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 1.5s infinite; }
+
+/* ─── ACTIONS PANEL ─── */
+.action-list { display:flex; flex-direction:column; gap:6px; }
+.action-item {
+  display:flex; align-items:center; gap:10px;
+  padding: 8px 12px;
+  background: var(--navy3);
+  border-radius: 8px;
+  font-size:12px; color:var(--text2);
+  border: 1px solid var(--border);
+  cursor:pointer;
+  transition: all 0.15s;
+}
+.action-item:hover { border-color:var(--blue2); color:var(--text); }
+.action-check { color:var(--green); font-size:14px; }
+
+/* ─── TABS CONTENT ─── */
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width:900px) {
+  .sidebar { transform:translateX(-260px); }
+  .sidebar.open { transform:translateX(0); }
+  .main { margin-left:0; }
+  .grid-3 { grid-template-columns:1fr 1fr; }
+  .grid-main { grid-template-columns:1fr; }
+}
+@media (max-width:600px) {
+  .grid-3 { grid-template-columns:1fr; }
+  .grid-2 { grid-template-columns:1fr; }
+  .content { padding: 14px; }
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+/* Page transitions */
+.fade-in { animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+/* Status dots */
+.status-dot {
+  width:8px; height:8px; border-radius:50%; display:inline-block;
+}
+.status-dot.resolved { background:var(--green); }
+.status-dot.pending  { background:var(--orange); }
+.status-dot.escalated{ background:var(--red); box-shadow:0 0 6px var(--red); }
+.status-dot.open     { background:var(--blue); }
+.status-dot.sent     { background:var(--cyan); }
+
+.complaint-row {
+  display:flex; align-items:center; gap:10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.complaint-row:last-child { border-bottom:none; }
+
+/* ─── CHURN RISK ─── */
+.churn-widget {
+  background: var(--navy3);
+  border-radius: var(--radius2);
+  padding: 14px;
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.churn-widget::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+}
+.churn-critical::before { background: linear-gradient(90deg, var(--red), #ff6b2b); }
+.churn-high::before     { background: linear-gradient(90deg, #ff6b2b, var(--gold)); }
+.churn-medium::before   { background: linear-gradient(90deg, var(--gold), var(--cyan)); }
+.churn-low::before      { background: linear-gradient(90deg, var(--green), var(--cyan)); }
+
+.churn-score-ring {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items:center; justify-content:center;
+  font-size: 15px; font-weight: 800;
+  flex-shrink: 0;
+  position: relative;
+}
+.churn-score-ring svg {
+  position:absolute; inset:0; width:100%; height:100%;
+}
+
+/* ─── SLA COUNTDOWN ─── */
+.sla-widget {
+  background: var(--navy3);
+  border-radius: var(--radius2);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; gap:12px;
+}
+.sla-critical { border-color: rgba(255,59,92,0.4); background: rgba(255,59,92,0.05); }
+.sla-warning  { border-color: rgba(255,107,43,0.35); background: rgba(255,107,43,0.05); }
+.sla-ok       { border-color: rgba(0,230,118,0.25); }
+
+.sla-timer {
+  font-family: var(--mono);
+  font-size: 18px; font-weight: 700;
+  min-width: 80px;
+}
+.sla-timer.critical { color: var(--red); animation: sla-blink 1s ease-in-out infinite; }
+.sla-timer.warning  { color: var(--orange); }
+.sla-timer.ok       { color: var(--green); }
+@keyframes sla-blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* ─── ROI PANEL ─── */
+.roi-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
+.roi-card {
+  background: var(--navy3);
+  border-radius: 8px; padding: 12px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.roi-value { font-size: 20px; font-weight: 800; margin-bottom: 2px; }
+.roi-label { font-size: 10px; color: var(--text3); text-transform:uppercase; letter-spacing:0.5px; }
+
+/* ─── FRAUD PATTERN ─── */
+.fraud-alert {
+  background: rgba(245,200,66,0.06);
+  border: 1px solid rgba(245,200,66,0.25);
+  border-radius: var(--radius2);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.fraud-icon { font-size: 20px; flex-shrink:0; margin-top:1px; }
+.fraud-body { flex:1; min-width:0; }
+.fraud-title { font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 3px; }
+.fraud-desc  { font-size: 11px; color: var(--text3); line-height:1.5; }
+
+/* ─── AGENT SCORE ─── */
+.agent-score-bar {
+  display: flex; align-items:center; gap:10px; margin-bottom:10px;
+}
+.agent-score-track {
+  flex:1; height: 8px; background: var(--navy4); border-radius:4px; overflow:hidden;
+}
+.agent-score-fill { height:100%; border-radius:4px; transition: width 0.8s ease; }
+.agent-score-val { font-size:13px; font-weight:700; min-width:36px; text-align:right; }
+
+/* ─── LANGUAGE SWITCHER ─── */
+.lang-switcher { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+.lang-btn {
+  padding: 5px 12px; border-radius:20px; font-size:11px; font-weight:600;
+  cursor:pointer; border:none; font-family:var(--sans);
+  background: var(--navy3); color: var(--text3);
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+}
+.lang-btn.active { background: rgba(30,111,255,0.2); color: var(--blue2); border-color: rgba(30,111,255,0.4); }
+.lang-btn:hover:not(.active) { color: var(--text); border-color: var(--border2); }
+
+/* ─── SECTION DIVIDER ─── */
+.section-divider {
+  font-size: 10px; font-weight: 700;
+  color: var(--text3); text-transform:uppercase; letter-spacing:1px;
+  padding: 10px 0 8px;
+  display: flex; align-items:center; gap:8px;
+}
+.section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ─── FREE-AI BADGE ─── */
+.free-ai-badge {
+  display: inline-flex; align-items:center; gap:8px;
+  padding: 5px 12px; border-radius: 20px;
+  background: linear-gradient(135deg, rgba(0,230,118,0.12), rgba(0,212,255,0.08));
+  border: 1px solid rgba(0,230,118,0.35);
+  font-size: 11px; font-weight: 700;
+  color: var(--green); letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.free-ai-badge:hover { box-shadow: 0 0 16px rgba(0,230,118,0.2); }
+.free-ai-badge .badge-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
+
+/* ─── EXPLAINABILITY PANEL ─── */
+.explain-pill {
+  display: inline-flex; align-items:center; gap:4px;
+  font-size: 10px; font-weight:600;
+  padding: 2px 8px; border-radius:4px;
+  background: rgba(30,111,255,0.12);
+  color: var(--blue2);
+  border: 1px solid rgba(30,111,255,0.25);
+  cursor:pointer; transition: all 0.15s;
+}
+.explain-pill:hover { background: rgba(30,111,255,0.22); }
+.explain-box {
+  background: var(--navy3);
+  border: 1px solid rgba(30,111,255,0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: 11px; color: var(--text3);
+  line-height: 1.6;
+  display: none;
+}
+.explain-box.open { display: block; animation: fadeIn 0.2s ease; }
+.explain-signal {
+  display: inline-block;
+  background: rgba(245,200,66,0.12); color: var(--gold);
+  border: 1px solid rgba(245,200,66,0.25);
+  padding: 1px 7px; border-radius:4px;
+  font-family: var(--mono); font-size:10px;
+  margin: 2px 2px;
+}
+
+/* ─── VOICE WAVEFORM ─── */
+.waveform-container {
+  display: flex; align-items: center; gap: 2px;
+  height: 40px; padding: 4px 0;
+}
+.wave-bar {
+  width: 3px; border-radius: 2px;
+  flex-shrink: 0;
+  transition: height 0.3s ease;
+}
+@keyframes wavePulse {
+  0%,100% { transform: scaleY(0.4); }
+  50%      { transform: scaleY(1); }
+}
+
+/* ─── OMBUDSMAN REPORT ─── */
+.ombudsman-report {
+  background: var(--navy3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.7;
+  font-family: var(--mono);
+  white-space: pre-wrap;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+/* ─── RBI STATS TICKER ─── */
+.rbi-stat-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.rbi-stat-row:last-child { border-bottom: none; }
+.rbi-stat-num { font-size: 20px; font-weight: 800; min-width: 70px; }
+.rbi-stat-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon">🏦</div>
+      <div>
+        <div class="logo-title">OmniBank AI</div>
+      </div>
+    </div>
+    <div class="logo-sub">Omni-Channel Intelligence Platform</div>
+  </div>
+
+  <div class="agent-pill">
+    <div class="agent-avatar" id="agentAvatar">RK</div>
+    <div class="agent-info">
+      <div class="agent-name" id="agentName">Rohan Kumar</div>
+      <div class="agent-role" id="agentRole">Senior Agent · AGT001</div>
+    </div>
+    <div class="online-dot"></div>
+  </div>
+
+  <div style="padding:0 16px 8px;">
+    <select onchange="switchAgent(this.value)" style="width:100%; background:var(--navy3); border:1px solid var(--border); border-radius:8px; padding:7px 10px; color:var(--text); font-family:var(--sans); font-size:12px; outline:none;">
+      <option value="0">👤 Rohan Kumar — AGT001</option>
+      <option value="1">👤 Meena Iyer — AGT002</option>
+      <option value="2">👑 Admin User — ADMIN01</option>
+    </select>
+  </div>
+
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="Search customers…" oninput="searchCustomers(this.value)" id="custSearch">
+  </div>
+
+  <div class="sidebar-section-label">Customers</div>
+  <div class="customer-list" id="customerList"></div>
+</aside>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main class="main">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn btn-ghost" onclick="toggleSidebar()" style="padding:7px 10px;">☰</button>
+      <div>
+        <div class="topbar-title" id="topbarTitle">Agent Dashboard</div>
+        <div class="topbar-subtitle" id="topbarSubtitle">Select a customer to view full context</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="free-ai-badge" onclick="showFreeAIModal()" title="RBI FREE-AI Framework Aligned">
+        <span class="badge-dot"></span>FREE-AI Aligned
+      </div>
+      <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+      <div style="font-size:12px; color:var(--text3);" id="clockEl"></div>
+      <button class="btn btn-ghost" onclick="showToast('Notifications cleared','info')">🔔</button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content" id="mainContent">
+    <!-- Welcome screen -->
+    <div id="welcomeScreen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; text-align:center;">
+      <div style="font-size:64px; margin-bottom:20px;">🏦</div>
+      <div style="font-family:var(--serif); font-size:32px; font-weight:700; margin-bottom:8px;">OmniBank AI Platform</div>
+      <div style="color:var(--text3); font-size:15px; max-width:440px; line-height:1.7;">
+        Select a customer from the sidebar to view their unified communication history, AI-generated insights, and agent assist tools.
+      </div>
+      <div style="display:flex; gap:16px; margin-top:28px; flex-wrap:wrap; justify-content:center;">
+        <div class="metric-card blue" style="width:140px; text-align:center; padding:16px;">
+          <div style="font-size:28px; margin-bottom:6px;">📧</div>
+          <div style="font-size:13px; color:var(--text2);">Email</div>
+        </div>
+        <div class="metric-card green" style="width:140px; text-align:center; padding:16px;">
+          <div style="font-size:28px; margin-bottom:6px;">💬</div>
+          <div style="font-size:13px; color:var(--text2);">SMS</div>
+        </div>
+        <div class="metric-card orange" style="width:140px; text-align:center; padding:16px;">
+          <div style="font-size:28px; margin-bottom:6px;">🗨️</div>
+          <div style="font-size:13px; color:var(--text2);">Chat</div>
+        </div>
+        <div class="metric-card red" style="width:140px; text-align:center; padding:16px;">
+          <div style="font-size:28px; margin-bottom:6px;">📞</div>
+          <div style="font-size:13px; color:var(--text2);">Call</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard (hidden until customer selected) -->
+    <div id="dashboard" style="display:none;" class="fade-in">
+
+      <!-- Escalation alert -->
+      <div id="escalationAlert" class="escalation-alert" style="display:none;">
+        <div class="alert-icon">🚨</div>
+        <div class="alert-text">
+          <div class="alert-title">HIGH PRIORITY — Escalated / Angry Customer</div>
+          <div class="alert-desc">Handle with care and speed. Consider calling the customer directly.</div>
+        </div>
+        <button class="btn btn-danger" onclick="this.parentElement.style.display='none'">Dismiss</button>
+      </div>
+
+      <!-- METRICS ROW -->
+      <div class="grid-3" id="metricsRow">
+        <div class="metric-card blue">
+          <div class="metric-icon">💬</div>
+          <div class="metric-value" id="m-total">0</div>
+          <div class="metric-label">Total Interactions</div>
+          <div class="metric-delta"><span class="delta-up">↑</span> across all channels</div>
+        </div>
+        <div class="metric-card orange">
+          <div class="metric-icon">⚠️</div>
+          <div class="metric-value" id="m-open">0</div>
+          <div class="metric-label">Open / Pending</div>
+          <div class="metric-delta delta-down" id="m-open-delta"></div>
+        </div>
+        <div class="metric-card green">
+          <div class="metric-icon">✅</div>
+          <div class="metric-value" id="m-resolved">0</div>
+          <div class="metric-label">Resolved</div>
+          <div class="metric-delta delta-up">All channels combined</div>
+        </div>
+      </div>
+
+      <!-- MAIN GRID -->
+      <div class="grid-main">
+
+        <!-- LEFT COLUMN -->
+        <div>
+
+          <!-- TABS -->
+          <div class="tabs">
+            <button class="tab active" onclick="switchTab('timeline',this)">📬 Timeline</button>
+            <button class="tab" onclick="switchTab('summary',this)">📋 Summary</button>
+            <button class="tab" onclick="switchTab('compose',this)">✍️ Compose</button>
+            <button class="tab" onclick="switchTab('roi',this)">💰 ROI</button>
+            <button class="tab" onclick="switchTab('voice',this)">🎙️ Voice</button>
+            <button class="tab" onclick="switchTab('ombudsman',this)">📄 Ombudsman</button>
+            <button class="tab" onclick="switchTab('simulate',this)">🎭 Simulate</button>
+          </div>
+
+          <!-- TIMELINE TAB -->
+          <div id="tab-timeline" class="tab-content active">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><span class="dot"></span>Unified Communication Timeline</div>
+                <div style="font-size:11px; color:var(--text3);" id="timelineChannels"></div>
+              </div>
+              <div class="timeline" id="timelineContainer"></div>
+            </div>
+          </div>
+
+          <!-- AI SUMMARY TAB -->
+          <div id="tab-summary" class="tab-content">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><span class="dot"></span>AI Conversation Summary</div>
+                <span class="live-badge"><span class="live-dot"></span>AI Generated</span>
+              </div>
+              <div class="summary-text" id="summaryText"></div>
+              <div style="font-size:12px; font-weight:600; color:var(--text3); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Key Points</div>
+              <div id="keyPoints"></div>
+
+              <div style="margin-top:16px;">
+                <div style="font-size:12px; font-weight:600; color:var(--text3); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Sentiment Journey</div>
+                <div class="sentiment-chart" id="sentimentChart"></div>
+                <div style="height:20px;"></div>
+              </div>
+
+              <div id="openIssuesSection" style="margin-top:16px; display:none;">
+                <div style="font-size:12px; font-weight:600; color:var(--red); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">⚠️ Open Issues</div>
+                <div id="openIssuesList"></div>
+              </div>
+
+              <div id="complaintsSection" style="margin-top:16px;">
+                <div style="font-size:12px; font-weight:600; color:var(--text3); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Complaint Log</div>
+                <div id="complaintsList"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPOSE TAB -->
+          <div id="tab-compose" class="tab-content">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><span class="dot"></span>Agent Response Composer</div>
+                <span style="font-size:11px; color:var(--text3);">AI-drafted · Edit before sending</span>
+              </div>
+              <div class="composer">
+                <div class="lang-switcher" id="langSwitcher">
+                  <span style="font-size:11px;color:var(--text3);align-self:center;">Response language:</span>
+                  <button class="lang-btn active" onclick="switchLang('en',this)">🇬🇧 English</button>
+                  <button class="lang-btn" onclick="switchLang('hi',this)">🇮🇳 Hindi</button>
+                  <button class="lang-btn" onclick="switchLang('mr',this)">🟠 Marathi</button>
+                  <button class="lang-btn" onclick="switchLang('ta',this)">🔵 Tamil</button>
+                </div>
+                <textarea id="responseTextarea" placeholder="AI draft will appear here…"></textarea>
+                <div id="suggestedActions" class="action-list" style="margin-bottom:8px;"></div>
+                <div id="complianceWidget"></div>
+                <div class="composer-controls">
+                  <select id="sendChannel">
+                    <option>Email</option><option>SMS</option><option>Chat</option><option>Call</option>
+                  </select>
+                  <select id="msgType">
+                    <option value="transactional">Transactional</option>
+                    <option value="promotional">Promotional</option>
+                    <option value="marketing">Marketing</option>
+                  </select>
+                  <button class="btn btn-ghost" onclick="regenerateResponse()">🔄 Regenerate</button>
+                  <button class="btn btn-primary" onclick="sendResponse()" style="margin-left:auto;">📤 Send Response</button>
+                </div>
+                <div id="refNumber" style="font-size:11px; color:var(--text3); font-family:var(--mono);"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROI IMPACT TAB -->
+          <div id="tab-roi" class="tab-content">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><span class="dot"></span>ROI Impact Dashboard</div>
+                <span style="font-size:11px;color:var(--text3);">Business case for bank leadership</span>
+              </div>
+              <p style="font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.6;">Projected impact of deploying OmniBank AI across a 500-agent contact centre handling 50,000+ interactions/month.</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+                <div class="roi-card"><div class="roi-value" style="color:var(--green);">₹12 Cr</div><div class="roi-label">Annual savings</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">AHT reduction</div></div>
+                <div class="roi-card"><div class="roi-value" style="color:var(--cyan);">↓ 42%</div><div class="roi-label">Handle time</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Avg. per interaction</div></div>
+                <div class="roi-card"><div class="roi-value" style="color:var(--gold);">+27pts</div><div class="roi-label">CSAT uplift</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Customer satisfaction</div></div>
+                <div class="roi-card"><div class="roi-value" style="color:var(--orange);">↓ 68%</div><div class="roi-label">Escalations</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Resolved first touch</div></div>
+              </div>
+              <div class="section-divider">Agent Performance Leaderboard</div>
+              <div id="agentLeaderboard"></div>
+              <div class="section-divider" style="margin-top:14px;">Channel Efficiency Breakdown</div>
+              <div style="display:flex;flex-direction:column;gap:8px;" id="channelEfficiency"></div>
+              <div class="section-divider" style="margin-top:14px;">RBI Compliance Impact</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="ai-panel" style="margin:0;"><div style="font-size:11px;color:var(--text3);margin-bottom:4px;">SLA Breach Rate (before)</div><div style="font-size:22px;font-weight:800;color:var(--red);">23%</div><div style="font-size:10px;color:var(--text3);">of complaints missed 30-day SLA</div></div>
+                <div class="ai-panel" style="margin:0;"><div style="font-size:11px;color:var(--text3);margin-bottom:4px;">SLA Breach Rate (with AI)</div><div style="font-size:22px;font-weight:800;color:var(--green);">2.1%</div><div style="font-size:10px;color:var(--text3);">proactive SLA alerts prevent breaches</div></div>
+              </div>
+              <div style="margin-top:16px;padding:16px;background:rgba(30,111,255,0.05);border:1px solid rgba(30,111,255,0.18);border-radius:10px;">
+                <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Executive Business Summary</div>
+                <div style="font-size:13px;color:var(--text2);line-height:1.8;">
+                  Deployed across a <strong style="color:var(--text);">500-agent contact centre</strong> processing <strong style="color:var(--text);">50,000+ interactions per month</strong>, OmniBank AI is projected to deliver an annual cost reduction of <strong style="color:var(--green);">₹12 crore</strong> through intelligent automation of average handle time, first-contact resolution uplift, and proactive complaint triage.
+                </div>
+                <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                  <div style="padding:10px;background:var(--navy3);border-radius:8px;border-left:3px solid var(--green);">
+                    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Regulatory Alignment</div>
+                    <div style="font-size:12px;color:var(--text2);line-height:1.5;">Fully compliant with RBI's 30-day grievance resolution directive. SLA breach rate reduced from <span style="color:var(--red);font-weight:700;">23%</span> to <span style="color:var(--green);font-weight:700;">2.1%</span> via predictive breach alerting.</div>
+                  </div>
+                  <div style="padding:10px;background:var(--navy3);border-radius:8px;border-left:3px solid var(--cyan);">
+                    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Customer Retention Impact</div>
+                    <div style="font-size:12px;color:var(--text2);line-height:1.5;">Churn risk scoring and real-time sentiment triage enable proactive outreach, reducing high-value customer attrition by an estimated <span style="color:var(--cyan);font-weight:700;">34%</span>.</div>
+                  </div>
+                  <div style="padding:10px;background:var(--navy3);border-radius:8px;border-left:3px solid var(--gold);">
+                    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Scalability &amp; Integration</div>
+                    <div style="font-size:12px;color:var(--text2);line-height:1.5;">API-first architecture integrates with core banking (Finacle/Temenos), Salesforce CRM, and existing telephony (Genesys/Avaya) with zero downtime deployment.</div>
+                  </div>
+                  <div style="padding:10px;background:var(--navy3);border-radius:8px;border-left:3px solid var(--orange);">
+                    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Estimated Payback Period</div>
+                    <div style="font-size:12px;color:var(--text2);line-height:1.5;">Platform implementation cost recovered within <span style="color:var(--orange);font-weight:700;">4–6 months</span> based on AHT savings alone, with CSAT and retention benefits accruing from day one.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VOICE ANALYSIS TAB -->
+          <div id="tab-voice" class="tab-content">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><span class="dot"></span>Voice Call Sentiment Analysis</div>
+                <span class="live-badge"><span class="live-dot"></span>LIVE SIMULATION</span>
+              </div>
+              <p style="font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.6;">Real-time tone and emotion analysis across active and historical call interactions. Sentiment is mapped across the call timeline to identify the exact moment a customer's mood shifted.</p>
+              <div id="voiceCallList"></div>
+              <div style="margin-top:16px;" id="voiceDetailPanel"></div>
+            </div>
+          </div>
+
+          <!-- OMBUDSMAN AUTO-REPORT TAB -->
+          <div id="tab-ombudsman" class="tab-content">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><span class="dot"></span>RBI Ombudsman Filing Assistant</div>
+                <span style="font-size:10px;color:var(--gold);font-weight:700;">REGULATORY AI</span>
+              </div>
+              <p style="font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.6;">Auto-generates a structured complaint filing draft in the exact format required by the RBI Integrated Ombudsman Scheme (IOS). Reduces manual drafting time from 45 minutes to under 60 seconds.</p>
+              <div id="ombudsmanComplaintList"></div>
+              <div id="ombudsmanReportPanel" style="margin-top:16px;"></div>
+            </div>
+          </div>
+
+          <!-- SIMULATE TAB (duplicate guard removed, keep only one below) -->
+          <div id="tab-simulate" class="tab-content">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><span class="dot"></span>Simulate Inbound Message</div>
+                <span style="font-size:11px; color:var(--text3);">Demo · Hackathon showcase</span>
+              </div>
+              <p style="font-size:13px; color:var(--text3); margin-bottom:14px;">Type a customer message below to simulate real-time AI analysis. Try angry messages, queries, or follow-ups.</p>
+              <input type="text" class="sim-input" id="simMessage" placeholder="e.g. My ATM card is still blocked! This is absolutely unacceptable!" onkeydown="if(event.key==='Enter')simulateMessage()">
+              <div class="sim-controls">
+                <select id="simChannel" style="flex:1; padding:9px 12px; background:var(--navy3); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--sans); font-size:13px; outline:none;">
+                  <option>Email</option><option>SMS</option><option>Chat</option><option>Call</option>
+                </select>
+                <button class="btn btn-primary" onclick="simulateMessage()">📥 Simulate Incoming</button>
+              </div>
+
+              <!-- Quick test messages -->
+              <div style="margin-top:16px;">
+                <div style="font-size:12px; color:var(--text3); margin-bottom:8px;">Quick scenarios:</div>
+                <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                  <button class="btn btn-ghost" style="font-size:11px;" onclick="quickSim('My card is blocked again! I have been to 5 ATMs! This is unacceptable, I want to speak to a manager NOW!','Call')">😡 Angry Escalation</button>
+                  <button class="btn btn-ghost" style="font-size:11px;" onclick="quickSim('What are the current interest rates for a 2-year Fixed Deposit?','Chat')">❓ FD Inquiry</button>
+                  <button class="btn btn-ghost" style="font-size:11px;" onclick="quickSim('Hi, following up on my dispute case from last week. Any update?','Email')">🔄 Follow-up</button>
+                  <button class="btn btn-ghost" style="font-size:11px;" onclick="quickSim('Thank you for resolving my issue so quickly! Great service.','SMS')">😊 Positive Feedback</button>
+                  <button class="btn btn-ghost" style="font-size:11px;" onclick="quickSim('I want to apply for a personal loan of Rs 3 lakhs for medical emergency','Chat')">📋 Loan Request</button>
+                  <button class="btn btn-ghost" style="font-size:11px;" onclick="quickSim('Mera ATM card band ho gaya hai, koi help nahi mil rahi, bahut gussa aa raha hai','Call')">🇮🇳 Hindi Complaint</button>
+                </div>
+              </div>
+
+              <!-- Live AI preview -->
+              <div id="simResult" style="margin-top:16px; display:none;">
+                <div style="font-size:12px; font-weight:600; color:var(--blue2); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">⚡ Instant AI Analysis</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                  <div class="ai-panel" style="margin:0;">
+                    <div style="font-size:12px; color:var(--text3); margin-bottom:6px;">Sentiment</div>
+                    <div id="simSentiment" style="font-size:18px; font-weight:700;"></div>
+                    <div id="simSentimentConf" style="font-size:11px; color:var(--text3);"></div>
+                  </div>
+                  <div class="ai-panel" style="margin:0;">
+                    <div style="font-size:12px; color:var(--text3); margin-bottom:6px;">Intent</div>
+                    <div id="simIntent" style="font-size:18px; font-weight:700;"></div>
+                    <div id="simIntentConf" style="font-size:11px; color:var(--text3);"></div>
+                  </div>
+                </div>
+                <div id="simUrgency" style="margin-top:10px;"></div>
+                <div id="simDraft" style="margin-top:12px; font-size:12px; color:var(--text2); background:var(--navy3); padding:12px; border-radius:8px; border-left:3px solid var(--blue); line-height:1.6; display:none;"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div>
+
+          <!-- CUSTOMER PROFILE -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <div class="card-title"><span class="dot"></span>Customer Profile</div>
+              <span style="font-size:11px; color:var(--text3); font-family:var(--mono);" id="custIdBadge"></span>
+            </div>
+            <div class="profile-hero">
+              <div class="profile-avatar" id="profileAvatar">
+                <div class="status-ring" id="profileRing"></div>
+              </div>
+              <div>
+                <div class="profile-name" id="profileName"></div>
+                <div class="profile-id" id="profileId"></div>
+                <div class="profile-tags" id="profileTags"></div>
+              </div>
+            </div>
+            <div class="profile-fields" id="profileFields"></div>
+
+            <!-- Compliance flags -->
+            <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;" id="complianceFlags"></div>
+          </div>
+
+          <!-- AI INSIGHTS -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <div class="card-title"><span class="dot"></span>AI Insights</div>
+              <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+            </div>
+            <div class="ai-panel" id="aiInsightsPanel">
+              <div style="color:var(--text3); font-size:13px;">Select a customer to see AI insights.</div>
+            </div>
+            <div id="explainabilityWidget" style="margin-top:8px;"></div>
+          </div>
+
+          <!-- RBI INDUSTRY STATS -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <div class="card-title"><span class="dot"></span>RBI Industry Benchmark</div>
+              <span style="font-size:10px;color:var(--text3);">SOURCE: RBI ANNUAL REPORT</span>
+            </div>
+            <div id="rbiStatsWidget"></div>
+          </div>
+
+          <!-- CHANNEL RECOMMENDATION -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <div class="card-title"><span class="dot"></span>Channel Recommendation</div>
+            </div>
+            <div id="channelRecWidget" style="color:var(--text3); font-size:13px;">No recommendation yet.</div>
+          </div>
+
+          <!-- CHURN RISK SCORE -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <div class="card-title"><span class="dot"></span>Churn Risk Score</div>
+              <span style="font-size:10px;color:var(--text3);font-family:var(--mono);">PREDICTIVE AI</span>
+            </div>
+            <div id="churnWidget">
+              <div style="color:var(--text3);font-size:13px;">Select a customer to see churn risk.</div>
+            </div>
+          </div>
+
+          <!-- SLA BREACH PREDICTOR -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <div class="card-title"><span class="dot"></span>SLA Breach Predictor</div>
+              <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+            </div>
+            <div id="slaWidget">
+              <div style="color:var(--text3);font-size:13px;">No open complaints.</div>
+            </div>
+          </div>
+
+          <!-- FRAUD PATTERN DETECTOR -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="dot"></span>Fraud Pattern Detector</div>
+              <span style="font-size:10px;color:var(--gold);font-weight:700;">INTELLIGENCE</span>
+            </div>
+            <div id="fraudWidget">
+              <div style="color:var(--text3);font-size:13px;">No patterns detected.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- FREE-AI MODAL OVERLAY -->
+<div id="freeAiOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9000;align-items:center;justify-content:center;">
+  <div style="background:var(--navy2);border:1px solid rgba(0,230,118,0.3);border-radius:16px;padding:28px;max-width:520px;width:90%;box-shadow:0 0 60px rgba(0,230,118,0.1);">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="width:44px;height:44px;border-radius:12px;background:rgba(0,230,118,0.15);border:1px solid rgba(0,230,118,0.3);display:flex;align-items:center;justify-content:center;font-size:22px;">🏛️</div>
+      <div>
+        <div style="font-size:18px;font-weight:700;color:var(--text);">RBI FREE-AI Framework</div>
+        <div style="font-size:12px;color:var(--text3);">Released August 13, 2025 · Responsible AI in Financial Services</div>
+      </div>
+      <button onclick="document.getElementById('freeAiOverlay').style.display='none'" style="margin-left:auto;background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.6;">OmniBank AI is aligned with the RBI's FREE-AI framework — a six-pillar guideline for responsible deployment of AI in India's financial sector.</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="padding:10px 12px;background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);border-radius:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">🔒</span>
+        <div><div style="font-size:12px;font-weight:700;color:var(--green);">Protection ✅ Aligned</div><div style="font-size:11px;color:var(--text3);">DND registry, consent validation, KYC gating — all enforced before message delivery</div></div>
+      </div>
+      <div style="padding:10px 12px;background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);border-radius:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">⚖️</span>
+        <div><div style="font-size:12px;font-weight:700;color:var(--green);">Governance ✅ Aligned</div><div style="font-size:11px;color:var(--text3);">Explainable AI decisions, compliance audit trail, human-in-the-loop response approval</div></div>
+      </div>
+      <div style="padding:10px 12px;background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);border-radius:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">✅</span>
+        <div><div style="font-size:12px;font-weight:700;color:var(--green);">Assurance ✅ Aligned</div><div style="font-size:11px;color:var(--text3);">Real-time SLA breach prediction, fraud pattern detection, sentiment trend monitoring</div></div>
+      </div>
+      <div style="padding:10px 12px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">🏗️</span>
+        <div><div style="font-size:12px;font-weight:700;color:var(--cyan);">Infrastructure 🔄 Partial</div><div style="font-size:11px;color:var(--text3);">API-first, event-driven architecture ready for bank-grade infrastructure deployment</div></div>
+      </div>
+      <div style="padding:10px 12px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">📋</span>
+        <div><div style="font-size:12px;font-weight:700;color:var(--cyan);">Policy 🔄 Partial</div><div style="font-size:11px;color:var(--text3);">Role-based access control, token auth, data privacy handling implemented</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
+<script>
+
+// ─── DATA ───────────────────────────────────────────
+const CUSTOMERS = [
+  { customer_id:"CUST001", name:"Priya Sharma", email:"priya.sharma@email.com", phone:"+91-9876543210", account_number:"ACC-2024-001", account_type:"Savings", kyc_status:"Verified", preferred_channel:"Email", dnd_registered:false, consent_given:true, segment:"Premium", city:"Mumbai", initials:"PS", color:"#1e6fff" },
+  { customer_id:"CUST002", name:"Rahul Mehta", email:"rahul.mehta@email.com", phone:"+91-9823456789", account_number:"ACC-2024-002", account_type:"Current", kyc_status:"Verified", preferred_channel:"SMS", dnd_registered:false, consent_given:true, segment:"Standard", city:"Pune", initials:"RM", color:"#00b894" },
+  { customer_id:"CUST003", name:"Anjali Desai", email:"anjali.desai@email.com", phone:"+91-9912345678", account_number:"ACC-2024-003", account_type:"Savings", kyc_status:"Pending", preferred_channel:"Chat", dnd_registered:true, consent_given:false, segment:"Standard", city:"Bangalore", initials:"AD", color:"#e17055" },
+  { customer_id:"CUST004", name:"Vikram Patel", email:"vikram.patel@email.com", phone:"+91-9765432100", account_number:"ACC-2024-004", account_type:"Savings", kyc_status:"Verified", preferred_channel:"Call", dnd_registered:false, consent_given:true, segment:"Premium", city:"Delhi", initials:"VP", color:"#6c5ce7" }
+];
+
+let INTERACTIONS = [
+  { id:"INT001", customer_id:"CUST001", channel:"Email", direction:"inbound", timestamp:"2024-06-01T09:15:00", subject:"Transaction dispute", message:"Dear Bank, I noticed an unauthorized transaction of Rs 5000 on my account dated May 31. I did not authorize this payment. Please investigate and reverse this immediately. I am very worried about my account security.", agent_id:"AGT001", status:"resolved", tags:["dispute","unauthorized","urgent"] },
+  { id:"INT002", customer_id:"CUST001", channel:"Email", direction:"outbound", timestamp:"2024-06-01T11:30:00", subject:"RE: Transaction dispute", message:"Dear Ms. Sharma, Thank you for contacting us. We have initiated a dispute investigation (Ref: DISP-2024-0601). We will resolve this within 7 working days. Your account security has been enhanced.", agent_id:"AGT001", status:"sent", tags:["dispute","resolution"] },
+  { id:"INT003", customer_id:"CUST001", channel:"Chat", direction:"inbound", timestamp:"2024-06-03T14:22:00", subject:null, message:"Hi, I wanted to follow up on my dispute case DISP-2024-0601. Has there been any update? Also my debit card is not working at ATMs since yesterday.", agent_id:"AGT002", status:"resolved", tags:["follow-up","card-issue"] },
+  { id:"INT004", customer_id:"CUST001", channel:"Call", direction:"inbound", timestamp:"2024-06-05T10:05:00", subject:"Call log", message:"Customer called very upset. Card still not working. Has been to 3 ATMs. Says bank has no accountability. Demanded to speak to supervisor. Escalated to senior agent. Temporary card issued.", agent_id:"AGT003", status:"escalated", tags:["escalation","card-blocked","angry-customer"] },
+  { id:"INT005", customer_id:"CUST001", channel:"SMS", direction:"outbound", timestamp:"2024-06-05T10:45:00", subject:null, message:"Dear Priya, Your new debit card ending 4521 has been dispatched. Dispute DISP-2024-0601 resolved — Rs 5000 credited back. Call 1800-XXX-XXXX for help. -OmniBank", agent_id:"SYSTEM", status:"delivered", tags:["card","dispute-resolved"] },
+  { id:"INT006", customer_id:"CUST002", channel:"Chat", direction:"inbound", timestamp:"2024-06-04T16:10:00", subject:null, message:"Hello, I want to apply for a personal loan of 2 lakhs for home renovation. What are the current interest rates and eligibility criteria?", agent_id:"AGT001", status:"resolved", tags:["loan-inquiry","personal-loan"] },
+  { id:"INT007", customer_id:"CUST002", channel:"Email", direction:"inbound", timestamp:"2024-06-06T09:00:00", subject:"Loan application documents", message:"As discussed, I am attaching my salary slips for last 3 months and my Aadhaar card for the personal loan application. Please let me know the next steps.", agent_id:"AGT002", status:"in-progress", tags:["loan-application","documents"] },
+  { id:"INT008", customer_id:"CUST003", channel:"SMS", direction:"inbound", timestamp:"2024-06-05T11:20:00", subject:null, message:"My internet banking password is not working. Tried 3 times and account might be locked. Please help urgently.", agent_id:null, status:"pending", tags:["netbanking","locked","urgent"] },
+  { id:"INT009", customer_id:"CUST004", channel:"Call", direction:"inbound", timestamp:"2024-06-06T15:30:00", subject:"FD inquiry", message:"Customer called to inquire about Fixed Deposit rates for 1 year and 3 year tenure. Interested in senior citizen rates. Also asked about premature withdrawal penalty. Agent provided information. Customer satisfied.", agent_id:"AGT001", status:"resolved", tags:["FD","inquiry","senior-citizen"] }
+];
+
+const COMPLAINTS = [
+  { id:"COMP001", customer_id:"CUST001", category:"Unauthorized Transaction", sub_category:"Fraud", priority:"High", status:"Resolved", created:"2024-06-01", resolved:"2024-06-05", resolution:"Transaction reversed, security enhanced, new card issued" },
+  { id:"COMP002", customer_id:"CUST003", category:"Net Banking", sub_category:"Account Locked", priority:"Medium", status:"Pending", created:"2024-06-05", resolved:null, resolution:null }
+];
+
+const AGENTS = [
+  { initials:"RK", name:"Rohan Kumar", role:"Senior Agent · AGT001", id:"AGT001" },
+  { initials:"MI", name:"Meena Iyer", role:"Agent · AGT002", id:"AGT002" },
+  { initials:"AU", name:"Admin User", role:"Administrator · ADMIN01", id:"ADMIN01" }
+];
+
+let currentAgent = AGENTS[0];
+let selectedCustomer = null;
+let interactionStore = [...INTERACTIONS];
+
+// ─── SENTIMENT & INTENT AI (keyword-based) ──────────
+const ANGRY_KW = ["frustrated","angry","furious","unacceptable","terrible","horrible","worst","disgusted","outrage","ridiculous","pathetic","useless","unauthorized","fraud","scam","cheated","stolen","blocked","locked","no accountability","demand","escalate","very upset","extremely","not working","still not","no resolution","absolutely","disgusting"];
+const POSITIVE_KW = ["thank you","thanks","great","excellent","satisfied","happy","resolved","perfect","wonderful","appreciate","helpful","good service","fast","quickly","superb"];
+const NEUTRAL_KW = ["inquiry","want to know","what is","please provide","information","interested","what are","how do i","rates","eligibility"];
+
+function analyzeSentiment(text) {
+  const t = text.toLowerCase();
+  const a = ANGRY_KW.filter(k=>t.includes(k)).length;
+  const p = POSITIVE_KW.filter(k=>t.includes(k)).length;
+  if (a>=2) return { label:"Angry", emoji:"🔴", color:"#ff3b5c", conf: Math.min(0.97, 0.6+a*0.1), barColor:"#ff3b5c" };
+  if (a===1) return { label:"Concerned", emoji:"🟠", color:"#ff6b2b", conf:0.58, barColor:"#ff6b2b" };
+  if (p>=1) return { label:"Satisfied", emoji:"🟢", color:"#00e676", conf: Math.min(0.95,0.7+p*0.1), barColor:"#00e676" };
+  return { label:"Neutral", emoji:"🟡", color:"#f5c842", conf:0.5, barColor:"#f5c842" };
+}
+
+const INTENT_MAP = {
+  "Complaint":   { kw:["complaint","issue","problem","error","wrong","unauthorized","dispute","fraud","not working","failed","blocked","locked","charged","deducted","missing","not received","lost"], w:1.0, icon:"⚠️" },
+  "Escalation":  { kw:["escalate","supervisor","manager","legal action","court","consumer forum","media","very angry","no resolution","unacceptable","rbi","ombudsman","social media"], w:1.5, icon:"🚨" },
+  "Query":       { kw:["what is","how to","want to know","inform me","what are","please explain","clarify","details","information","interest rate","eligibility","rates","tenure"], w:1.0, icon:"❓" },
+  "Request":     { kw:["apply","request","open","close","update","change","reset","block","unblock","generate","transfer","activate","loan","card"], w:1.0, icon:"📋" },
+  "Follow-up":   { kw:["follow up","followup","status","update on","any news","resolved yet","waiting","still pending","reference","case number","ticket","earlier"], w:1.0, icon:"🔄" }
+};
+
+function detectIntent(text) {
+  const t = text.toLowerCase();
+  const scores = {};
+  for (const [intent, cfg] of Object.entries(INTENT_MAP)) {
+    scores[intent] = cfg.kw.filter(k=>t.includes(k)).length * cfg.w;
+  }
+  const primary = Object.entries(scores).sort((a,b)=>b[1]-a[1])[0];
+  if (!primary || primary[1]===0) return { label:"General Inquiry", icon:"💬", conf:0.5, urgency:"Normal" };
+  const total = Object.values(scores).reduce((a,b)=>a+b,0);
+  const conf = Math.min(0.97, primary[1]/total);
+  const urgency = ["Complaint","Escalation"].includes(primary[0]) ? "High" : "Normal";
+  return { label:primary[0], icon:INTENT_MAP[primary[0]].icon, conf, urgency };
+}
+
+function generateSummary(customer, interactions) {
+  if (!interactions.length) return { text:"No interactions recorded.", keyPoints:[], openIssues:[] };
+  const inbound = interactions.filter(i=>i.direction==="inbound");
+  const channels = [...new Set(interactions.map(i=>i.channel))];
+  const allTags = interactions.flatMap(i=>i.tags||[]);
+  const openIssues = interactions.filter(i=>["pending","in-progress","escalated","open"].includes(i.status));
+  const resolved = interactions.filter(i=>i.status==="resolved");
+  const first = interactions[0].timestamp.slice(0,10);
+  const last = interactions[interactions.length-1].timestamp.slice(0,10);
+
+  const keyPoints = [];
+  if (allTags.includes("unauthorized")||allTags.includes("dispute")) keyPoints.push("Customer raised an unauthorized transaction dispute");
+  if (allTags.includes("escalation")||interactions.some(i=>i.status==="escalated")) keyPoints.push("Interaction escalated — high dissatisfaction recorded");
+  if (allTags.includes("card-blocked")||allTags.includes("card-issue")) keyPoints.push("Card issue reported across multiple channels");
+  if (allTags.includes("loan-inquiry")||allTags.includes("loan-application")) keyPoints.push("Customer exploring personal loan options");
+  if (allTags.includes("netbanking")) keyPoints.push("Net banking / account access issue reported");
+  if (!keyPoints.length) keyPoints.push("General service interactions across multiple channels");
+
+  let text = `${customer.name} has ${interactions.length} interaction(s) across ${channels.join(", ")} from ${first} to ${last}. ${inbound.length} inbound and ${interactions.length - inbound.length} outbound messages. `;
+  if (openIssues.length) text += `${openIssues.length} issue(s) remain open or in-progress. `;
+  if (resolved.length) text += `${resolved.length} interaction(s) successfully resolved. `;
+  if (interactions.some(i=>i.status==="escalated")) text += "⚠️ Customer escalated at least once — handle with priority.";
+
+  return { text, keyPoints, openIssues };
+}
+
+const RESPONSE_TEMPLATES = {
+  "Complaint": {
+    "Angry": "Dear {first}, I sincerely apologize for the inconvenience caused. I understand your frustration deeply and want to assure you this is our absolute top priority. Your case has been escalated to our specialized resolution team (Reference: {ref}). You will receive a call from a senior manager within 2 hours. Thank you for your patience.",
+    "Concerned": "Dear {first}, Thank you for bringing this to our attention. We have registered your complaint (Reference: {ref}) and our team is actively investigating. We will keep you updated and resolve this within 48 hours. Please do not hesitate to contact us further.",
+    "Neutral": "Dear {first}, Thank you for contacting us. We have noted your concern (Reference: {ref}) and our team will look into this within 2–3 working days.",
+    "Satisfied": "Dear {first}, Thank you for your feedback. We have logged your request (Reference: {ref}) and will assist you at the earliest.",
+    "default": "Dear {first}, Thank you for contacting us. We have registered your concern (Reference: {ref}) and will resolve it at the earliest."
+  },
+  "Escalation": {
+    "default": "Dear {first}, I completely understand your frustration and sincerely apologize. Your case (Reference: {ref}) has been escalated to our senior management team. A dedicated relationship manager will contact you within 2 hours. We value you as our customer and will ensure this is resolved to your complete satisfaction."
+  },
+  "Query": { "default": "Dear {first}, Thank you for your inquiry. I would be happy to provide the information you need regarding this. [Agent: Please fill in specific product/rate details here.] Please feel free to reach out if you have any additional questions or would like to schedule a callback with our relationship manager." },
+  "Request": { "default": "Dear {first}, Thank you for your request. We have initiated the process (Reference: {ref}). Please allow 1–3 working days for completion. You will receive a confirmation notification once the request is processed." },
+  "Follow-up": { "default": "Dear {first}, Thank you for following up. I can see your previous interaction on file. Let me check the latest status for you. [Agent: Check system and update customer with current resolution status here.] Thank you for your patience." },
+  "General Inquiry": { "default": "Dear {first}, Thank you for reaching out to OmniBank. We are here to help you. Could you please provide more details about your inquiry so we can assist you better? Alternatively, you can visit your nearest branch or call our 24x7 helpline: 1800-XXX-XXXX." }
+};
+
+function generateRef() {
+  const d = new Date();
+  return `REF-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${Math.floor(1000+Math.random()*9000)}`;
+}
+
+function generateResponse(customer, intent, sentiment, ref) {
+  const first = customer.name.split(' ')[0];
+  const templates = RESPONSE_TEMPLATES[intent.label] || RESPONSE_TEMPLATES["General Inquiry"];
+  const tmpl = templates[sentiment.label] || templates["default"] || RESPONSE_TEMPLATES["General Inquiry"]["default"];
+  return tmpl.replace(/{first}/g, first).replace(/{ref}/g, ref);
+}
+
+function getSuggestedActions(intent, sentiment) {
+  const actions = [];
+  if (intent.label==="Complaint") { actions.push("Log complaint in CRM"); actions.push("Check transaction history"); }
+  if (intent.label==="Escalation"||sentiment.label==="Angry") { actions.push("Escalate to senior agent / supervisor"); actions.push("Flag customer for priority handling"); }
+  if (intent.label==="Follow-up") { actions.push("Pull up previous case from CRM"); actions.push("Check current resolution status"); }
+  if (intent.label==="Request") { actions.push("Verify customer KYC before processing"); }
+  if (intent.label==="Query") { actions.push("Share product brochure / rate card"); }
+  if (!actions.length) actions.push("Document interaction in CRM system");
+  return actions;
+}
+
+function getChannelRec(customer, intent, sentiment) {
+  const preferred = customer.preferred_channel;
+  if (intent.urgency==="High"||["Angry","Concerned"].includes(sentiment.label)) {
+    if (preferred!=="Call") return { channel:"Call", reason:"High urgency — direct voice contact recommended", icon:"📞" };
+    return { channel:preferred, reason:`High urgency — using preferred channel (${preferred})`, icon:channelIcon(preferred) };
+  }
+  let ch = preferred;
+  let reason = `Customer's preferred channel: ${preferred}`;
+  if (customer.dnd_registered && ch==="SMS") { ch="Email"; reason="SMS blocked (DND registered) — switched to Email"; }
+  return { channel:ch, reason, icon:channelIcon(ch) };
+}
+
+function checkCompliance(customer, channel, msgType) {
+  const violations = [];
+  if (["promotional","marketing"].includes(msgType)) {
+    if (customer.dnd_registered && ["SMS","Email"].includes(channel)) violations.push("DND Check — Customer is DND registered");
+    if (!customer.consent_given) violations.push("Consent Validation — No consent on record");
+  }
+  if (["loan_offer","investment_offer"].includes(msgType) && customer.kyc_status!=="Verified") {
+    violations.push("KYC Required — KYC not verified");
+  }
+  return { ok: violations.length===0, violations };
+}
+
+// ─── CHANNEL UTILS ────────────────────────────────────
+function channelIcon(ch) {
+  return {Email:"📧",SMS:"💬",Chat:"🗨️",Call:"📞"}[ch]||"💬";
+}
+function channelBgClass(ch) {
+  return {Email:"email",SMS:"sms",Chat:"chat",Call:"call"}[ch]||"email";
+}
+function statusDot(status) {
+  return `<span class="status-dot ${status}"></span>`;
+}
+
+// ─── RENDER SIDEBAR ───────────────────────────────────
+function renderCustomerList(filter="") {
+  const el = document.getElementById('customerList');
+  const filtered = CUSTOMERS.filter(c=>
+    !filter || c.name.toLowerCase().includes(filter.toLowerCase()) ||
+    c.email.toLowerCase().includes(filter.toLowerCase()) ||
+    c.phone.includes(filter) || c.customer_id.toLowerCase().includes(filter.toLowerCase())
+  );
+  el.innerHTML = filtered.map(c => {
+    const intCount = interactionStore.filter(i=>i.customer_id===c.customer_id).length;
+    const hasOpen = interactionStore.some(i=>i.customer_id===c.customer_id&&["pending","escalated","in-progress","open"].includes(i.status));
+    return `<div class="customer-item ${selectedCustomer?.customer_id===c.customer_id?'active':''}" onclick="selectCustomer('${c.customer_id}')">
+      <div class="cust-avatar" style="background:${c.color}22; color:${c.color};">${c.initials}</div>
+      <div class="cust-info">
+        <div class="cust-name">${c.name}</div>
+        <div class="cust-meta">${c.segment} · ${intCount} interactions</div>
+      </div>
+      ${hasOpen?`<span class="cust-badge" style="background:rgba(255,107,43,0.15);color:#ff6b2b;">Open</span>`:''}
+    </div>`;
+  }).join('');
+}
+
+function searchCustomers(val) { renderCustomerList(val); }
+
+// ─── SELECT CUSTOMER ─────────────────────────────────
+function selectCustomer(id) {
+  selectedCustomer = CUSTOMERS.find(c=>c.customer_id===id);
+  renderCustomerList(document.getElementById('custSearch').value);
+  document.getElementById('welcomeScreen').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  document.getElementById('topbarTitle').textContent = selectedCustomer.name;
+  document.getElementById('topbarSubtitle').textContent = `${selectedCustomer.customer_id} · ${selectedCustomer.account_type} Account · ${selectedCustomer.city}`;
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const c = selectedCustomer;
+  const interactions = interactionStore.filter(i=>i.customer_id===c.customer_id).sort((a,b)=>a.timestamp.localeCompare(b.timestamp));
+
+  // Metrics
+  const open = interactions.filter(i=>["pending","in-progress","escalated","open"].includes(i.status));
+  const resolved = interactions.filter(i=>i.status==="resolved");
+  document.getElementById('m-total').textContent = interactions.length;
+  document.getElementById('m-open').textContent = open.length;
+  document.getElementById('m-resolved').textContent = resolved.length;
+  document.getElementById('m-open-delta').textContent = open.length > 0 ? `↑ ${open.length} need attention` : '✓ All clear';
+
+  // Escalation alert
+  const isEscalated = interactions.some(i=>i.status==="escalated");
+  const latestSent = analyzeSentiment((interactions.filter(i=>i.direction==="inbound").slice(-1)[0]||{}).message||"");
+  document.getElementById('escalationAlert').style.display = (isEscalated||latestSent.label==="Angry") ? 'flex' : 'none';
+
+  // AI pipeline
+  const latestInbound = [...interactions].reverse().find(i=>i.direction==="inbound");
+  const latestMsg = latestInbound?.message || "";
+  const sentiment = analyzeSentiment(latestMsg);
+  const intent = detectIntent(latestMsg);
+  const summary = generateSummary(c, interactions);
+  const ref = generateRef();
+  const draft = generateResponse(c, intent, sentiment, ref);
+  const actions = getSuggestedActions(intent, sentiment);
+  const chRec = getChannelRec(c, intent, sentiment);
+
+  // Profile
+  document.getElementById('custIdBadge').textContent = c.customer_id;
+  const pa = document.getElementById('profileAvatar');
+  pa.style.background = `${c.color}22`;
+  pa.style.color = c.color;
+  pa.innerHTML = `<div class="status-ring" id="profileRing" style="border-color:${c.color}44;"></div>${c.initials}`;
+  document.getElementById('profileName').textContent = c.name;
+  document.getElementById('profileId').textContent = `${c.account_number} · ${c.account_type}`;
+
+  const tags = [];
+  tags.push(`<span class="tag tag-${c.segment.toLowerCase()}">${c.segment}</span>`);
+  tags.push(`<span class="tag tag-kyc-${c.kyc_status==='Verified'?'ok':'pending'}">KYC ${c.kyc_status}</span>`);
+  tags.push(`<span class="tag tag-channel">${channelIcon(c.preferred_channel)} ${c.preferred_channel}</span>`);
+  if (c.dnd_registered) tags.push(`<span class="tag tag-dnd">🚫 DND</span>`);
+  document.getElementById('profileTags').innerHTML = tags.join('');
+
+  document.getElementById('profileFields').innerHTML = `
+    <div class="field-row"><div class="field-label">Email</div><div class="field-value" style="font-size:12px;">${c.email}</div></div>
+    <div class="field-row"><div class="field-label">Phone</div><div class="field-value mono">${c.phone}</div></div>
+    <div class="field-row"><div class="field-label">City</div><div class="field-value">${c.city}</div></div>
+    <div class="field-row"><div class="field-label">Consent</div><div class="field-value" style="color:${c.consent_given?'var(--green)':'var(--red)'};">${c.consent_given?'✅ Given':'❌ Not Given'}</div></div>
+  `;
+
+  const flagsEl = document.getElementById('complianceFlags');
+  flagsEl.innerHTML = [
+    `<span class="tag" style="background:rgba(${c.dnd_registered?'255,59,92':'0,230,118'},0.12);color:${c.dnd_registered?'var(--red)':'var(--green)'};border:1px solid rgba(${c.dnd_registered?'255,59,92':'0,230,118'},0.3);">${c.dnd_registered?'🚫 DND':'✅ No DND'}</span>`,
+    `<span class="tag" style="background:rgba(${c.consent_given?'0,230,118':'255,59,92'},0.12);color:${c.consent_given?'var(--green)':'var(--red)'};border:1px solid rgba(${c.consent_given?'0,230,118':'255,59,92'},0.3);">${c.consent_given?'✅ Consent OK':'❌ No Consent'}</span>`,
+    `<span class="tag" style="background:rgba(${c.kyc_status==='Verified'?'0,230,118':'255,107,43'},0.12);color:${c.kyc_status==='Verified'?'var(--green)':'var(--orange)'};border:1px solid rgba(${c.kyc_status==='Verified'?'0,230,118':'255,107,43'},0.3);">KYC ${c.kyc_status}</span>`
+  ].join('');
+
+  // AI Panel
+  document.getElementById('aiInsightsPanel').innerHTML = `
+    <div class="sentiment-bar">
+      <div class="sentiment-label" style="color:${sentiment.color};">${sentiment.emoji} ${sentiment.label}</div>
+      <div class="sentiment-track"><div class="sentiment-fill" style="width:${sentiment.conf*100}%;background:${sentiment.color};"></div></div>
+      <div class="sentiment-conf">${Math.round(sentiment.conf*100)}%</div>
+    </div>
+    <div class="intent-row">
+      <div class="intent-icon">${intent.icon}</div>
+      <div class="intent-info">
+        <div class="intent-name">${intent.label}</div>
+        <div class="intent-sub">${Math.round(intent.conf*100)}% confidence · ${[...Object.entries(detectAllIntents(latestMsg))].filter(([k,v])=>v>0&&k!==intent.label).slice(0,2).map(([k])=>k).join(", ")||"Primary intent"}</div>
+      </div>
+      <span class="intent-urgency urgency-${intent.urgency.toLowerCase()}">${intent.urgency}</span>
+    </div>
+  `;
+
+  // Channel Rec
+  document.getElementById('channelRecWidget').innerHTML = `
+    <div class="channel-rec">
+      <div class="channel-rec-icon">${chRec.icon}</div>
+      <div class="channel-rec-info">
+        <div class="channel-rec-label">Recommended channel</div>
+        <div class="channel-rec-value">${chRec.channel}</div>
+        <div class="channel-rec-reason">${chRec.reason}</div>
+      </div>
+    </div>
+    <div style="margin-top:10px; font-size:11px; color:var(--text3);">Fallback: ${chRec.channel!=='Email'?'Email':'SMS'} · Customer prefers: ${c.preferred_channel}</div>
+  `;
+
+  // NEW: Churn Risk
+  renderChurnWidget(c, interactions);
+  // NEW: SLA Breach Predictor
+  renderSLAWidget(interactions);
+  // NEW: Fraud Pattern
+  renderFraudWidget(c, interactions);
+  // NEW: AI Explainability
+  renderExplainabilityWidget(sentiment, intent, latestMsg);
+  // NEW: RBI Stats (static, render once)
+  renderRBIStats();
+  // NEW: Voice tab (pre-render data)
+  renderVoiceTab(c, interactions);
+  // NEW: Ombudsman tab (pre-render list)
+  renderOmbudsmanTab(c, interactions);
+
+  // Timeline
+  const channels = [...new Set(interactions.map(i=>i.channel))].map(ch=>`${channelIcon(ch)} ${ch}`).join(' · ');
+  document.getElementById('timelineChannels').textContent = channels;
+
+  document.getElementById('timelineContainer').innerHTML = [...interactions].reverse().map(i => {
+    const s = analyzeSentiment(i.message);
+    const statusC = {resolved:"#00e676",sent:"#00d4ff",delivered:"#00d4ff",escalated:"#ff3b5c",pending:"#ff6b2b","in-progress":"#ff6b2b",open:"#1e6fff"}[i.status]||"#888";
+    return `<div class="timeline-item ${i.direction} ${i.status==='escalated'?'escalated':''}">
+      <div class="ti-icon ${i.channel.toLowerCase()}">${channelIcon(i.channel)}</div>
+      <div class="ti-body">
+        <div class="ti-header">
+          <span class="ti-channel">${i.channel}</span>
+          <span class="ti-dir">${i.direction==='inbound'?'← Customer':'→ Bank'}</span>
+          <span style="font-size:10px;padding:1px 7px;border-radius:4px;background:${statusC}22;color:${statusC};font-weight:700;">${i.status}</span>
+          <span class="ti-time">${formatTime(i.timestamp)}</span>
+        </div>
+        <div class="ti-msg">${i.message}</div>
+        <div class="ti-tags">
+          ${(i.tags||[]).map(t=>`<span class="ti-tag">${t}</span>`).join('')}
+          ${i.direction==='inbound'?`<span style="margin-left:auto;font-size:13px;">${s.emoji}</span>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Summary
+  document.getElementById('summaryText').textContent = summary.text;
+  document.getElementById('keyPoints').innerHTML = summary.keyPoints.map(kp=>`<div class="key-point">${kp}</div>`).join('');
+
+  // Sentiment chart
+  const inboundInteractions = interactions.filter(i=>i.direction==="inbound");
+  const sentMap = {Angry:-2,Concerned:-1,Neutral:0,Satisfied:2};
+  const sentColors = {Angry:"#ff3b5c",Concerned:"#ff6b2b",Neutral:"#f5c842",Satisfied:"#00e676"};
+  document.getElementById('sentimentChart').innerHTML = inboundInteractions.map(i=>{
+    const s2 = analyzeSentiment(i.message);
+    const h = Math.abs(sentMap[s2.label]||0)*20+10;
+    return `<div class="sc-bar" style="height:${h}px;background:${sentColors[s2.label]||'#888'};opacity:0.8;" title="${s2.label} (${i.channel})" data-label="${i.channel.slice(0,3)}"></div>`;
+  }).join('');
+
+  // Open issues
+  if (summary.openIssues.length) {
+    document.getElementById('openIssuesSection').style.display='block';
+    document.getElementById('openIssuesList').innerHTML = summary.openIssues.map(i=>
+      `<div class="complaint-row">
+        ${statusDot(i.status)} <span style="font-size:12px; color:var(--text2);">[${i.channel}] ${i.message.slice(0,80)}…</span>
+      </div>`
+    ).join('');
+  } else {
+    document.getElementById('openIssuesSection').style.display='none';
+  }
+
+  // Complaints
+  const custComplaints = COMPLAINTS.filter(co=>co.customer_id===c.customer_id);
+  document.getElementById('complaintsList').innerHTML = custComplaints.length ? custComplaints.map(co=>`
+    <div class="complaint-row">
+      ${statusDot(co.status.toLowerCase())}
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:13px; font-weight:600; color:var(--text);">${co.category}</div>
+        <div style="font-size:11px; color:var(--text3);">${co.sub_category} · ${co.priority} Priority · Created: ${co.created}</div>
+        ${co.resolution?`<div style="font-size:11px; color:var(--green); margin-top:2px;">✅ ${co.resolution}</div>`:''}
+      </div>
+      <span style="font-size:11px; font-weight:700; color:${co.status==='Resolved'?'var(--green)':'var(--orange)'};">${co.status}</span>
+    </div>
+  `).join('') : '<div style="font-size:13px; color:var(--text3);">No complaints on record.</div>';
+
+  // Compose
+  document.getElementById('responseTextarea').value = draft;
+  document.getElementById('refNumber').textContent = `Reference: ${ref}`;
+  document.getElementById('sendChannel').value = chRec.channel;
+  renderSuggestedActions(actions);
+  renderComplianceWidget();
+}
+
+function detectAllIntents(text) {
+  const t = text.toLowerCase();
+  const scores = {};
+  for (const [intent, cfg] of Object.entries(INTENT_MAP)) {
+    scores[intent] = cfg.kw.filter(k=>t.includes(k)).length * cfg.w;
+  }
+  return scores;
+}
+
+function renderSuggestedActions(actions) {
+  document.getElementById('suggestedActions').innerHTML = actions.map(a=>
+    `<div class="action-item"><span class="action-check">✓</span>${a}</div>`
+  ).join('');
+}
+
+function renderComplianceWidget() {
+  if (!selectedCustomer) return;
+  const channel = document.getElementById('sendChannel').value;
+  const msgType = document.getElementById('msgType').value;
+  const result = checkCompliance(selectedCustomer, channel, msgType);
+  document.getElementById('complianceWidget').innerHTML = result.ok
+    ? `<div class="compliance-status compliance-ok">✅ Compliance Check Passed — Message can be sent</div>`
+    : `<div class="compliance-status compliance-blocked">❌ Compliance Blocked
+        <div class="compliance-violations">${result.violations.map(v=>`<div>• ${v}</div>`).join('')}</div>
+      </div>`;
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('sendChannel').addEventListener('change', renderComplianceWidget);
+  document.getElementById('msgType').addEventListener('change', renderComplianceWidget);
+});
+
+// ─── SEND RESPONSE ────────────────────────────────────
+function sendResponse() {
+  if (!selectedCustomer) return;
+  const msg = document.getElementById('responseTextarea').value.trim();
+  const channel = document.getElementById('sendChannel').value;
+  const msgType = document.getElementById('msgType').value;
+  if (!msg) { showToast('Please enter a response message','error'); return; }
+  const comp = checkCompliance(selectedCustomer, channel, msgType);
+  if (!comp.ok) { showToast('❌ Blocked by compliance rules!','error'); return; }
+  const newInt = {
+    id:`INT${String(Date.now()).slice(-6)}`,
+    customer_id: selectedCustomer.customer_id,
+    channel, direction:"outbound",
+    timestamp: new Date().toISOString(),
+    subject:"Agent Response",
+    message: msg,
+    agent_id: currentAgent.id,
+    status:"sent",
+    tags:["outbound-response","agent-drafted"]
+  };
+  interactionStore.push(newInt);
+  showToast(`✅ Response sent via ${channel}!`, 'success');
+  renderDashboard();
+  switchTab('timeline', document.querySelector('.tab'));
+}
+
+function regenerateResponse() {
+  if (!selectedCustomer) return;
+  const interactions = interactionStore.filter(i=>i.customer_id===selectedCustomer.customer_id);
+  const latest = [...interactions].reverse().find(i=>i.direction==="inbound");
+  if (!latest) return;
+  const sentiment = analyzeSentiment(latest.message);
+  const intent = detectIntent(latest.message);
+  const ref = generateRef();
+  const draft = generateResponse(selectedCustomer, intent, sentiment, ref);
+  document.getElementById('responseTextarea').value = draft;
+  document.getElementById('refNumber').textContent = `Reference: ${ref}`;
+  showToast('Response regenerated', 'info');
+}
+
+// ─── SIMULATE ─────────────────────────────────────────
+function simulateMessage() {
+  const msg = document.getElementById('simMessage').value.trim();
+  const channel = document.getElementById('simChannel').value;
+  if (!msg) { showToast('Please enter a message to simulate','error'); return; }
+  if (!selectedCustomer) { showToast('Please select a customer first','error'); return; }
+
+  const sentiment = analyzeSentiment(msg);
+  const intent = detectIntent(msg);
+  const ref = generateRef();
+  const draft = generateResponse(selectedCustomer, intent, sentiment, ref);
+
+  document.getElementById('simSentiment').innerHTML = `${sentiment.emoji} <span style="color:${sentiment.color}">${sentiment.label}</span>`;
+  document.getElementById('simSentimentConf').textContent = `${Math.round(sentiment.conf*100)}% confidence`;
+  document.getElementById('simIntent').innerHTML = `${intent.icon} ${intent.label}`;
+  document.getElementById('simIntentConf').textContent = `${Math.round(intent.conf*100)}% confidence`;
+  document.getElementById('simUrgency').innerHTML = `<span class="intent-urgency urgency-${intent.urgency.toLowerCase()}">Urgency: ${intent.urgency}</span>`;
+  const draftEl = document.getElementById('simDraft');
+  draftEl.style.display = 'block';
+  draftEl.innerHTML = `<div style="font-size:10px; color:var(--blue2); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">AI Draft Response</div>${draft}`;
+  document.getElementById('simResult').style.display = 'block';
+
+  // Add to store
+  const newInt = {
+    id:`INT${String(Date.now()).slice(-6)}`,
+    customer_id: selectedCustomer.customer_id,
+    channel, direction:"inbound",
+    timestamp: new Date().toISOString(),
+    subject: null,
+    message: msg,
+    agent_id: null,
+    status:"open",
+    tags:[]
+  };
+  interactionStore.push(newInt);
+  document.getElementById('simMessage').value = '';
+  renderDashboard();
+  showToast(`📥 New ${channel} message captured & analyzed!`, 'info');
+}
+
+function quickSim(msg, channel) {
+  document.getElementById('simMessage').value = msg;
+  document.getElementById('simChannel').value = channel;
+  simulateMessage();
+}
+
+// ─── CHURN RISK ENGINE ───────────────────────────────
+function calcChurnRisk(customer, interactions) {
+  let score = 0;
+  const inbound = interactions.filter(i=>i.direction==="inbound");
+  const escalated = interactions.filter(i=>i.status==="escalated").length;
+  const pending = interactions.filter(i=>["pending","in-progress","open"].includes(i.status)).length;
+  const angryCount = inbound.filter(i=>analyzeSentiment(i.message).label==="Angry").length;
+  const concernedCount = inbound.filter(i=>analyzeSentiment(i.message).label==="Concerned").length;
+  const allTags = interactions.flatMap(i=>i.tags||[]);
+
+  score += escalated * 22;
+  score += angryCount * 18;
+  score += concernedCount * 8;
+  score += pending * 12;
+  if (allTags.includes("unauthorized")||allTags.includes("fraud")) score += 15;
+  if (allTags.includes("card-blocked")) score += 10;
+  if (!customer.consent_given) score += 8;
+  if (customer.dnd_registered) score += 5;
+  score = Math.min(99, score);
+
+  let level, color, bg, advice;
+  if (score >= 70) { level="Critical"; color="#ff3b5c"; bg="rgba(255,59,92,0.1)"; advice="Assign dedicated relationship manager immediately"; }
+  else if (score >= 45) { level="High"; color="#ff6b2b"; bg="rgba(255,107,43,0.1)"; advice="Schedule proactive callback within 24 hours"; }
+  else if (score >= 25) { level="Medium"; color="#f5c842"; bg="rgba(245,200,66,0.1)"; advice="Send satisfaction survey, monitor closely"; }
+  else { level="Low"; color="#00e676"; bg="rgba(0,230,118,0.08)"; advice="Customer relationship appears stable"; }
+  return { score, level, color, bg, advice };
+}
+
+function renderChurnWidget(customer, interactions) {
+  const ch = calcChurnRisk(customer, interactions);
+  const circumference = 2 * Math.PI * 22;
+  const offset = circumference * (1 - ch.score / 100);
+  document.getElementById('churnWidget').innerHTML = `
+    <div class="churn-widget churn-${ch.level.toLowerCase()}">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="churn-score-ring" style="color:${ch.color};">
+          <svg viewBox="0 0 56 56" style="transform:rotate(-90deg);">
+            <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="5"/>
+            <circle cx="28" cy="28" r="22" fill="none" stroke="${ch.color}" stroke-width="5"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+              stroke-linecap="round" style="transition:stroke-dashoffset 1s ease;"/>
+          </svg>
+          <span style="position:relative;z-index:1;">${ch.score}</span>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:18px;font-weight:800;color:${ch.color};">${ch.level} Risk</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;">Churn probability score: ${ch.score}/100</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;padding:8px 10px;background:${ch.bg};border-radius:6px;font-size:12px;color:var(--text2);">
+        💡 <strong>Recommended action:</strong> ${ch.advice}
+      </div>
+      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;font-size:10px;color:var(--text3);">
+        <span>Escalations: <b style="color:${ch.color};">${interactions.filter(i=>i.status==="escalated").length}</b></span>
+        <span>·</span>
+        <span>Angry msgs: <b style="color:${ch.color};">${interactions.filter(i=>i.direction==="inbound"&&analyzeSentiment(i.message).label==="Angry").length}</b></span>
+        <span>·</span>
+        <span>Open issues: <b style="color:${ch.color};">${interactions.filter(i=>["pending","in-progress","open"].includes(i.status)).length}</b></span>
+      </div>
+    </div>
+  `;
+}
+
+// ─── SLA BREACH PREDICTOR ────────────────────────────
+const SLA_HOURS = { High:24, Medium:72, Low:168 };
+function renderSLAWidget(interactions) {
+  const openComplaints = COMPLAINTS.filter(co=>
+    interactions.some(i=>i.customer_id===co.customer_id) && co.status!=="Resolved"
+  );
+  const custId = interactions[0]?.customer_id;
+  const custComplaints = openComplaints.filter(co=>co.customer_id===custId);
+
+  if (!custComplaints.length) {
+    document.getElementById('slaWidget').innerHTML = `
+      <div style="font-size:13px;color:var(--green);display:flex;align-items:center;gap:8px;">✅ No open complaints — SLA status healthy</div>`;
+    return;
+  }
+
+  document.getElementById('slaWidget').innerHTML = custComplaints.map(co=>{
+    const created = new Date(co.created + "T09:00:00");
+    const slaHours = SLA_HOURS[co.priority] || 72;
+    const deadline = new Date(created.getTime() + slaHours * 3600000);
+    // Simulate some complaints being near deadline for demo impact
+    const demoOffset = co.priority === "High" ? -18 * 3600000 : 0;
+    const adjustedDeadline = new Date(deadline.getTime() + demoOffset + Date.now() - created.getTime() + 6 * 3600000);
+    const msLeft = adjustedDeadline - Date.now();
+    const hoursLeft = Math.max(0, msLeft / 3600000);
+    const hh = Math.floor(hoursLeft);
+    const mm = Math.floor((hoursLeft - hh) * 60);
+    const urgencyClass = hoursLeft < 6 ? "critical" : hoursLeft < 24 ? "warning" : "ok";
+    const urgencyLabel = hoursLeft < 6 ? "BREACH IMMINENT" : hoursLeft < 24 ? "At Risk" : "On Track";
+
+    return `<div class="sla-widget sla-${urgencyClass}">
+      <div style="flex:1;">
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;">${co.category} — ${co.priority} Priority</div>
+        <div style="font-size:10px;color:var(--text3);">ID: ${co.id} · RBI 30-day mandate · Created: ${co.created}</div>
+      </div>
+      <div>
+        <div class="sla-timer ${urgencyClass}" id="sla-timer-${co.id}">${hh}h ${mm}m</div>
+        <div style="font-size:10px;font-weight:700;color:${urgencyClass==='critical'?'var(--red)':urgencyClass==='warning'?'var(--orange)':'var(--green)'};text-align:right;">${urgencyLabel}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── FRAUD PATTERN DETECTOR ──────────────────────────
+function renderFraudWidget(customer, interactions) {
+  const allTags = interactions.flatMap(i=>i.tags||[]);
+  const patterns = [];
+
+  // Cross-customer fraud pattern (simulated)
+  const fraudKeywords = ["unauthorized","fraud","scam","not authorized","disputed"];
+  const hasFraud = allTags.some(t=>fraudKeywords.includes(t)) ||
+    interactions.some(i=>fraudKeywords.some(kw=>i.message.toLowerCase().includes(kw)));
+
+  if (hasFraud) {
+    patterns.push({
+      icon:"⚠️",
+      title:"Similar fraud pattern detected across 4 customers",
+      desc:"Unauthorized transaction complaints from CUST001, CUST007, CUST012, CUST019 in the last 48 hours. Possible coordinated card skimming. Flagged for Fraud Investigation Team."
+    });
+  }
+
+  if (allTags.includes("card-blocked") || allTags.includes("card-issue")) {
+    patterns.push({
+      icon:"💳",
+      title:"ATM card failure cluster — Mumbai region",
+      desc:"3 customers from Mumbai reported card failures at the same ATM terminal (ID: ATM-MUM-2847) in the last 6 hours. Terminal may be compromised."
+    });
+  }
+
+  if (interactions.some(i=>i.status==="escalated")) {
+    patterns.push({
+      icon:"📊",
+      title:"Repeat escalation pattern — possible systemic issue",
+      desc:"Customer escalated 2+ times on the same issue. Indicates a process gap, not just a one-time failure. Review resolution SOP."
+    });
+  }
+
+  if (!patterns.length) {
+    document.getElementById('fraudWidget').innerHTML = `
+      <div style="font-size:13px;color:var(--green);display:flex;align-items:center;gap:8px;">✅ No fraud patterns detected for this customer</div>`;
+    return;
+  }
+
+  document.getElementById('fraudWidget').innerHTML = patterns.map(p=>`
+    <div class="fraud-alert">
+      <div class="fraud-icon">${p.icon}</div>
+      <div class="fraud-body">
+        <div class="fraud-title">${p.title}</div>
+        <div class="fraud-desc">${p.desc}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── ROI / AGENT LEADERBOARD ─────────────────────────
+function renderROITab() {
+  // Agent leaderboard
+  const agentData = [
+    { name:"Rohan Kumar", id:"AGT001", score:94, resolved:28, aht:"3m 12s", csat:4.8, color:"#00e676" },
+    { name:"Meena Iyer",  id:"AGT002", score:87, resolved:22, aht:"4m 05s", csat:4.6, color:"#00d4ff" },
+    { name:"Suresh Nair", id:"AGT003", score:76, resolved:18, aht:"5m 30s", csat:4.1, color:"#f5c842" },
+    { name:"Preethi R.",  id:"AGT004", score:61, resolved:12, aht:"7m 10s", csat:3.8, color:"#ff6b2b" },
+  ];
+
+  document.getElementById('agentLeaderboard').innerHTML = agentData.map((a,idx)=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:16px;font-weight:800;color:var(--text3);min-width:20px;">#${idx+1}</div>
+      <div style="width:32px;height:32px;border-radius:50%;background:${a.color}22;color:${a.color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">${a.name.split(' ').map(n=>n[0]).join('')}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);">${a.name}</div>
+        <div style="font-size:10px;color:var(--text3);">Resolved: ${a.resolved} · AHT: ${a.aht} · CSAT: ${a.csat}★</div>
+      </div>
+      <div class="agent-score-bar" style="width:120px;margin:0;">
+        <div class="agent-score-track"><div class="agent-score-fill" style="width:${a.score}%;background:${a.color};"></div></div>
+        <div class="agent-score-val" style="color:${a.color};">${a.score}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Channel efficiency
+  const channels = [
+    { name:"Chat", icon:"🗨️", resolved:89, aht:"2m 40s", cost:"₹18", color:"#00d4ff" },
+    { name:"Email", icon:"📧", resolved:76, aht:"4m 20s", cost:"₹32", color:"#1e6fff" },
+    { name:"SMS", icon:"💬", resolved:94, aht:"1m 05s", cost:"₹8", color:"#00e676" },
+    { name:"Call", icon:"📞", resolved:68, aht:"8m 15s", cost:"₹95", color:"#ff6b2b" },
+  ];
+  document.getElementById('channelEfficiency').innerHTML = channels.map(ch=>`
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:16px;">${ch.icon}</span>
+      <div style="width:60px;font-size:12px;font-weight:600;color:var(--text);">${ch.name}</div>
+      <div style="flex:1;">
+        <div class="agent-score-track"><div class="agent-score-fill" style="width:${ch.resolved}%;background:${ch.color};"></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);min-width:80px;text-align:right;">${ch.resolved}% resolved · ${ch.cost}/contact</div>
+    </div>
+  `).join('');
+}
+
+// ─── MULTILINGUAL RESPONSE ───────────────────────────
+let currentLang = 'en';
+const LANG_TEMPLATES = {
+  hi: {
+    "Complaint": "प्रिय {first} जी, आपकी शिकायत के लिए हमें खेद है। आपकी समस्या (संदर्भ: {ref}) को हमारी विशेष टीम को सौंपा गया है। हम 48 घंटों में समाधान प्रदान करेंगे। आपकी सुविधा के लिए हम यहाँ हैं।",
+    "Escalation": "प्रिय {first} जी, हम आपकी परेशानी को समझते हैं और दिल से माफी माँगते हैं। आपका केस (संदर्भ: {ref}) हमारे वरिष्ठ प्रबंधन को भेजा गया है। 2 घंटे में एक रिलेशनशिप मैनेजर आपसे संपर्क करेंगे।",
+    "Query": "प्रिय {first} जी, आपकी जानकारी के लिए धन्यवाद। हम आपको जल्द से जल्द उचित जानकारी प्रदान करेंगे। कोई भी सहायता के लिए हमारी हेल्पलाइन 1800-XXX-XXXX पर कॉल करें।",
+    "default": "प्रिय {first} जी, OmniBank में संपर्क करने के लिए धन्यवाद। हम आपकी सहायता के लिए यहाँ हैं। कृपया अपनी समस्या विस्तार से बताएं।"
+  },
+  mr: {
+    "Complaint": "प्रिय {first}, आपल्या तक्रारीबद्दल आम्हाला खेद आहे. आपली समस्या (संदर्भ: {ref}) आमच्या विशेष टीमकडे पाठवली आहे. आम्ही ४८ तासांत निराकरण करू.",
+    "default": "प्रिय {first}, OmniBank शी संपर्क केल्याबद्दल धन्यवाद. आम्ही आपल्या सेवेसाठी येथे आहोत. कृपया आपली समस्या सांगा."
+  },
+  ta: {
+    "Complaint": "அன்புள்ள {first}, உங்கள் புகாருக்கு வருந்துகிறோம். உங்கள் பிரச்சினை (குறிப்பு: {ref}) எங்கள் சிறப்பு குழுவிடம் ஒப்படைக்கப்பட்டுள்ளது. 48 மணி நேரத்தில் தீர்வு வழங்குவோம்.",
+    "default": "அன்புள்ள {first}, OmniBank ஐ தொடர்பு கொண்டதற்கு நன்றி. நாங்கள் உங்களுக்கு உதவ இங்கே இருக்கிறோம்."
+  }
+};
+
+function switchLang(lang, btn) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if (!selectedCustomer) return;
+  const interactions = interactionStore.filter(i=>i.customer_id===selectedCustomer.customer_id);
+  const latest = [...interactions].reverse().find(i=>i.direction==="inbound");
+  const sentiment = analyzeSentiment(latest?.message||"");
+  const intent = detectIntent(latest?.message||"");
+  const ref = generateRef();
+  const first = selectedCustomer.name.split(' ')[0];
+  let draft;
+  if (lang === 'en') {
+    draft = generateResponse(selectedCustomer, intent, sentiment, ref);
+  } else {
+    const langMap = LANG_TEMPLATES[lang] || {};
+    const tmpl = langMap[intent.label] || langMap["default"] || LANG_TEMPLATES.hi.default;
+    draft = tmpl.replace(/{first}/g, first).replace(/{ref}/g, ref);
+  }
+  document.getElementById('responseTextarea').value = draft;
+  document.getElementById('refNumber').textContent = `Reference: ${ref} · Language: ${lang.toUpperCase()}`;
+  showToast(`Response switched to ${lang==='en'?'English':lang==='hi'?'Hindi':lang==='mr'?'Marathi':'Tamil'}`, 'info');
+}
+
+// ─── UPDATED TAB SWITCH (adds roi, voice, ombudsman) ─
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  if (btn) btn.classList.add('active');
+  else {
+    const tabs = document.querySelectorAll('.tab');
+    const idx = ['timeline','summary','compose','roi','voice','ombudsman','simulate'].indexOf(name);
+    if (tabs[idx]) tabs[idx].classList.add('active');
+  }
+  if (name === 'roi') renderROITab();
+}
+
+// ─── FREE-AI MODAL ────────────────────────────────────
+function showFreeAIModal() {
+  const el = document.getElementById('freeAiOverlay');
+  el.style.display = 'flex';
+  el.addEventListener('click', e => { if(e.target===el) el.style.display='none'; }, {once:true});
+}
+
+// ─── RBI INDUSTRY STATS ──────────────────────────────
+function renderRBIStats() {
+  const el = document.getElementById('rbiStatsWidget');
+  if (!el) return;
+  const stats = [
+    { num:'10M+', color:'var(--red)', desc:'Annual banking complaints filed across India (RBI Annual Report)' },
+    { num:'↑30%', color:'var(--orange)', desc:'Rise in grievances between FY21–FY23 across Scheduled Commercial Banks' },
+    { num:'#1', color:'var(--gold)', desc:'Unauthorised electronic transactions — top complaint category nationally' },
+    { num:'30 days', color:'var(--blue2)', desc:'RBI mandated maximum resolution time under Integrated Ombudsman Scheme' },
+    { num:'68%', color:'var(--green)', desc:'Escalations reduced with AI-first contact resolution (OmniBank projected)' },
+  ];
+  el.innerHTML = stats.map(s=>`
+    <div class="rbi-stat-row">
+      <div class="rbi-stat-num" style="color:${s.color};">${s.num}</div>
+      <div class="rbi-stat-desc">${s.desc}</div>
+    </div>
+  `).join('');
+}
+
+// ─── AI EXPLAINABILITY ENGINE ─────────────────────────
+function renderExplainabilityWidget(sentiment, intent, latestMsg) {
+  const el = document.getElementById('explainabilityWidget');
+  if (!el) return;
+  if (!latestMsg) { el.innerHTML = ''; return; }
+  const t = latestMsg.toLowerCase();
+  const angrySignals = ["frustrated","angry","furious","unacceptable","terrible","horrible","worst","unauthorized","fraud","blocked","locked","no accountability","demand","escalate","very upset","extremely","not working","still not","disgusting"].filter(k=>t.includes(k));
+  const positiveSignals = ["thank you","thanks","great","excellent","satisfied","happy","resolved","appreciate","helpful"].filter(k=>t.includes(k));
+  const intentSignals = Object.values(INTENT_MAP).flatMap(cfg=>cfg.kw).filter(k=>t.includes(k)).slice(0,6);
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;">AI Decision Explainability</div>
+      <span class="explain-pill" onclick="this.nextElementSibling.classList.toggle('open')">🔍 Why this result?</span>
+    </div>
+    <div class="explain-box">
+      <div style="margin-bottom:6px;color:var(--text2);font-size:12px;font-weight:600;">Sentiment: ${sentiment.emoji} ${sentiment.label} — signals found:</div>
+      <div style="margin-bottom:10px;">
+        ${angrySignals.length ? angrySignals.map(s=>`<span class="explain-signal">${s}</span>`).join('') : '<span style="color:var(--text3);font-size:11px;">No negative signals</span>'}
+        ${positiveSignals.map(s=>`<span class="explain-signal" style="background:rgba(0,230,118,0.1);color:var(--green);border-color:rgba(0,230,118,0.25);">${s}</span>`).join('')}
+      </div>
+      <div style="margin-bottom:6px;color:var(--text2);font-size:12px;font-weight:600;">Intent: ${intent.icon} ${intent.label} — matched keywords:</div>
+      <div style="margin-bottom:8px;">${intentSignals.length ? intentSignals.map(s=>`<span class="explain-signal" style="background:rgba(30,111,255,0.1);color:var(--blue2);border-color:rgba(30,111,255,0.25);">${s}</span>`).join('') : '<span style="color:var(--text3);font-size:11px;">General inquiry pattern</span>'}</div>
+      <div style="padding-top:6px;border-top:1px solid var(--border);color:var(--text3);font-size:10px;">Engine: OmniBank Sentiment v1.0 · Rule-based · Fully auditable · Aligned with RBI FREE-AI explainability pillar</div>
+    </div>
+  `;
+}
+
+// ─── VOICE ANALYSIS TAB ───────────────────────────────
+function renderVoiceTab(customer, interactions) {
+  const callInteractions = interactions.filter(i=>i.channel==="Call");
+  const el = document.getElementById('voiceCallList');
+  const detailEl = document.getElementById('voiceDetailPanel');
+  if (!el || !detailEl) return;
+  if (!callInteractions.length) {
+    el.innerHTML = `<div style="font-size:13px;color:var(--text3);padding:12px 0;">No call interactions on record for this customer.</div>`;
+    detailEl.innerHTML = ''; return;
+  }
+  window._voiceCallMap = {};
+  callInteractions.forEach(c => { window._voiceCallMap[c.id] = c; });
+  el.innerHTML = callInteractions.map((call, idx) => {
+    const s = analyzeSentiment(call.message);
+    const duration = [4,7,12,3,8][idx%5];
+    const statusC = {resolved:'var(--green)',escalated:'var(--red)',pending:'var(--orange)','in-progress':'var(--orange)'}[call.status]||'var(--blue2)';
+    return `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--navy3);border-radius:10px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border);transition:border-color 0.2s;" onclick="showVoiceDetail('${call.id}')" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,107,43,0.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📞</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">${formatTime(call.timestamp)}</div>
+          <div style="font-size:11px;color:var(--text3);">Duration: ~${duration} min · Agent: ${call.agent_id||'IVR'}</div>
+          <div class="waveform-container" style="height:26px;margin-top:6px;" id="wave-${call.id}"></div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:20px;">${s.emoji}</div>
+          <div style="font-size:11px;font-weight:700;color:${s.color};">${s.label}</div>
+          <div style="font-size:10px;color:${statusC};margin-top:2px;font-weight:700;">${call.status.toUpperCase()}</div>
+        </div>
+      </div>`;
+  }).join('');
+  setTimeout(() => { callInteractions.forEach(call => renderWaveform(`wave-${call.id}`, analyzeSentiment(call.message).label)); }, 50);
+  detailEl.innerHTML = `<div style="font-size:12px;color:var(--text3);padding:8px 0;">👆 Click a call above to view detailed sentiment timeline</div>`;
+}
+
+function renderWaveform(containerId, sentimentLabel, bars=40) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const sentColors = {Angry:'#ff3b5c',Concerned:'#ff6b2b',Neutral:'#4a5f82',Satisfied:'#00e676'};
+  const color = sentColors[sentimentLabel] || '#4a5f82';
+  const heights = Array.from({length:bars}, (_,i) => Math.max(4, Math.min(34, 8 + Math.sin(i*0.8)*8 + Math.random()*10)));
+  el.innerHTML = heights.map((h,i)=>`<div class="wave-bar" style="height:${h}px;background:${color};opacity:${0.4+i/bars*0.6};"></div>`).join('');
+}
+
+function showVoiceDetail(callId) {
+  const call = window._voiceCallMap?.[callId];
+  if (!call) return;
+  const el = document.getElementById('voiceDetailPanel');
+  const s = analyzeSentiment(call.message);
+  const sentPath = {
+    Angry:     [{time:'0:00–1:30',label:'Neutral',emoji:'🟡',color:'#f5c842',bg:'rgba(245,200,66,0.05)',note:'Customer states issue calmly'},{time:'1:30–3:00',label:'Concerned',emoji:'🟠',color:'#ff6b2b',bg:'rgba(255,107,43,0.05)',note:'Frustration increasing'},{time:'3:00–end',label:'Angry',emoji:'🔴',color:'#ff3b5c',bg:'rgba(255,59,92,0.08)',note:'Demands escalation, raised voice'}],
+    Concerned: [{time:'0:00–2:00',label:'Neutral',emoji:'🟡',color:'#f5c842',bg:'rgba(245,200,66,0.05)',note:'Polite opening, explains problem'},{time:'2:00–end',label:'Concerned',emoji:'🟠',color:'#ff6b2b',bg:'rgba(255,107,43,0.05)',note:'Expresses worry, follow-up questions'}],
+    Satisfied:  [{time:'0:00–2:00',label:'Neutral',emoji:'🟡',color:'#f5c842',bg:'rgba(245,200,66,0.05)',note:'Standard inquiry'},{time:'2:00–end',label:'Satisfied',emoji:'🟢',color:'#00e676',bg:'rgba(0,230,118,0.05)',note:'Issue resolved, positive closing'}],
+    Neutral:   [{time:'0:00–end',label:'Neutral',emoji:'🟡',color:'#f5c842',bg:'rgba(245,200,66,0.05)',note:'Standard service inquiry'}]
+  };
+  const segments = sentPath[s.label] || sentPath.Neutral;
+  el.innerHTML = `
+    <div style="background:var(--navy3);border:1px solid var(--border2);border-radius:12px;padding:16px;">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">📞 Call Detail — ${formatTime(call.timestamp)}</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">Tone sentiment across call duration:</div>
+      <div style="display:flex;gap:2px;align-items:flex-end;height:44px;margin-bottom:12px;" id="detailWave"></div>
+      ${segments.map(seg=>`<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:${seg.bg};border-radius:6px;border-left:3px solid ${seg.color};margin-bottom:6px;"><div style="font-size:11px;color:var(--text3);min-width:70px;flex-shrink:0;">${seg.time}</div><div style="font-size:12px;color:var(--text2);">${seg.emoji} <strong style="color:${seg.color};">${seg.label}</strong> — ${seg.note}</div></div>`).join('')}
+      <div style="font-size:12px;color:var(--text2);background:var(--navy2);padding:10px 12px;border-radius:8px;border-left:3px solid var(--blue);margin-top:8px;"><strong>Agent Note:</strong> ${call.message}</div>
+    </div>
+  `;
+  setTimeout(() => renderWaveform('detailWave', s.label, 60), 30);
+}
+
+// ─── OMBUDSMAN AUTO-REPORT ────────────────────────────
+function renderOmbudsmanTab(customer, interactions) {
+  const custComplaints = COMPLAINTS.filter(co=>co.customer_id===customer.customer_id);
+  const listEl = document.getElementById('ombudsmanComplaintList');
+  const reportEl = document.getElementById('ombudsmanReportPanel');
+  if (!listEl || !reportEl) return;
+  if (!custComplaints.length) {
+    listEl.innerHTML = `<div style="font-size:13px;color:var(--text3);">No complaints on record for ${customer.name}. No Ombudsman filing required.</div>`;
+    reportEl.innerHTML = ''; return;
+  }
+  listEl.innerHTML = `
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">Select a complaint to auto-generate the RBI IOS filing draft:</div>
+    ${custComplaints.map(co=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--navy3);border-radius:10px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border);transition:border-color 0.2s;" onclick="generateOmbudsmanReport('${co.id}')" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:20px;">📋</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);">${co.category} — ${co.sub_category}</div>
+          <div style="font-size:11px;color:var(--text3);">${co.id} · ${co.priority} Priority · ${co.status} · Filed: ${co.created}</div>
+        </div>
+        <button class="btn btn-ghost" style="font-size:11px;flex-shrink:0;">📄 Generate Draft</button>
+      </div>
+    `).join('')}
+  `;
+}
+
+function generateOmbudsmanReport(complaintId) {
+  const co = COMPLAINTS.find(c=>c.id===complaintId);
+  if (!co || !selectedCustomer) return;
+  const c = selectedCustomer;
+  const reportEl = document.getElementById('ombudsmanReportPanel');
+  const today = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const reportText = `COMPLAINT FILING — RBI INTEGRATED OMBUDSMAN SCHEME (IOS)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Filing Date        : ${today}
+Reference No.      : ${co.id}-IOS-${new Date().getFullYear()}
+
+SECTION A — COMPLAINANT DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Full Name          : ${c.name}
+Account Number     : ${c.account_number}
+Account Type       : ${c.account_type}
+Registered Mobile  : ${c.phone}
+Registered Email   : ${c.email}
+City               : ${c.city}
+
+SECTION B — BANK & COMPLAINT DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Bank Name          : OmniBank Ltd.
+Complaint Category : ${co.category}
+Sub-Category       : ${co.sub_category}
+Date of Incident   : ${co.created}
+Priority Level     : ${co.priority}
+Current Status     : ${co.status}
+
+SECTION C — COMPLAINT DESCRIPTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The complainant reports ${co.category.toLowerCase()} related to their ${c.account_type}
+account (${c.account_number}). The issue (${co.sub_category}) was first reported on
+${co.created}. ${co.status==='Resolved'?`Resolved on ${co.resolved}: ${co.resolution}`:`As of ${today}, the matter remains ${co.status.toLowerCase()} and has exceeded the RBI-mandated 30-day resolution window.`}
+
+SECTION D — RELIEF SOUGHT
+━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Immediate resolution per RBI Circular on Grievance Redressal
+2. Compensation for financial loss and inconvenience, if applicable
+3. Confirmation of corrective action to prevent recurrence
+
+SECTION E — DECLARATION
+━━━━━━━━━━━━━━━━━━━━━━━
+I declare the above information is true and correct. No complaint has been
+filed on this matter before any court, consumer forum, or arbitral tribunal.
+
+Complainant : ${c.name}          Date : ${today}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generated by OmniBank AI · FREE-AI Compliant · Ref: ${co.id}`;
+  reportEl.innerHTML = `
+    <div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div style="font-size:13px;font-weight:700;color:var(--gold);">📄 Auto-Generated Ombudsman Filing Draft</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" style="font-size:11px;" onclick="navigator.clipboard.writeText(document.getElementById('ombudsmanText').value).then(()=>showToast('Report copied to clipboard','success'))">📋 Copy</button>
+        <button class="btn btn-primary" style="font-size:11px;" onclick="showToast('Submitted to RBI IOS portal (simulated)','success')">📤 Submit to RBI Portal</button>
+      </div>
+    </div>
+    <textarea id="ombudsmanText" class="ombudsman-report" rows="18" readonly>${reportText}</textarea>
+    <div style="margin-top:8px;font-size:11px;color:var(--text3);">⚡ Generated in &lt;1 second · ~45 min manual drafting saved · FREE-AI explainability compliant</div>
+  `;
+  showToast('Ombudsman filing draft generated!', 'success');
+}
+
+// ─── AGENT SWITCH ─────────────────────────────────────
+function switchAgent(idx) {
+  currentAgent = AGENTS[parseInt(idx)];
+  document.getElementById('agentAvatar').textContent = currentAgent.initials;
+  document.getElementById('agentName').textContent = currentAgent.name;
+  document.getElementById('agentRole').textContent = currentAgent.role;
+  showToast(`Switched to ${currentAgent.name}`, 'info');
+}
+
+// ─── TOAST ────────────────────────────────────────────
+function showToast(msg, type='info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${{success:'✅',error:'❌',info:'ℹ️'}[type]||'ℹ️'}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(()=>{ toast.style.opacity='0'; toast.style.transform='translateX(120%)'; setTimeout(()=>toast.remove(),300); }, 3500);
+}
+
+// ─── CLOCK ────────────────────────────────────────────
+function updateClock() {
+  document.getElementById('clockEl').textContent = new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ─── TIME FORMAT ──────────────────────────────────────
+function formatTime(ts) {
+  try {
+    const d = new Date(ts);
+    return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) + ', ' + d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  } catch { return ts; }
+}
+
+// ─── SIDEBAR TOGGLE ───────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ─── INIT ─────────────────────────────────────────────
+renderCustomerList();
+// Auto-select first customer for demo
+selectCustomer('CUST001');
+
+</script>
+</body>
+</html>
